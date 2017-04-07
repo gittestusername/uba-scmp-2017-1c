@@ -1,1 +1,1 @@
-# Sistemas-Complejos-en-M-quinas-Paralelas
+# Sistemas-Complejos-en-Maquinas-Paralelas
