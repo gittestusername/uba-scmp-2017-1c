@@ -20,12 +20,12 @@ for k=1:lim_sup
     end
     pcolor(Z)
     %shading interp;
-    file = strcat('plot', num2str(k));
+    file = strcat('data', num2str(k));
     print(file,'-dbmp')
     %pause(0.1) %in seconds 
-    csvwrite('csvlist.dat',Z);
+    csvwrite(file,Z);
     hold on
-     H = csvread('csvlist.dat');
+     H = csvread(file);
      contour(H,5,'linecolor','w', 'linewidth', 2);
      hold off
 end
