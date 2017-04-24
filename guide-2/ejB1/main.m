@@ -4,8 +4,8 @@ clear all;
 tresh = 0.1;
 dif = 99999999;
 
-cantBars = 2;
-barWidth = 10;
+cantBars = 5;
+barWidth = 3;
 sysWidth = (2*cantBars+1)*barWidth;
 sysHeight = 9;
 baseHeight = (4/5)*sysHeight;
