@@ -1,3 +1,5 @@
+#ifndef MAT_H
+#define MAT_H
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -32,14 +34,12 @@ template <class T> class mat {
 
 };
 
-
-
-template<class T> inline std::ostream& operator<<(std::ostream& os, mat<T>& m){
-      for (int i = 0; i < m.rows(); ++i) {
+template<class T> inline std::ostream& operator<<(std::ostream& os, mat<T>& m) {
+    for (int i = 0; i < m.rows(); ++i) {
         std::cout << std::endl;
         for (int j = 0; j < m.cols(); ++j) {
             std::stringstream ss;
-            ss << m.at(i,j);
+            ss << m.at(i, j);
             std::string str = ss.str();
             int len = str.length();
             int maxSpaces = 7; //TODO: Use max of matrix instead of a fixed value.
@@ -48,50 +48,48 @@ template<class T> inline std::ostream& operator<<(std::ostream& os, mat<T>& m){
                 os << " ";
                 spaces--;
             }
-            os << " " << m.at(i,j);
+            os << " " << m.at(i, j);
         }
     }
     os << std::endl;
 }
 
-
-
 template<typename T>
-mat<T> mat<T>::operator+( mat<T>& b) {
+mat<T> mat<T>::operator+( mat<T>& m) {
     mat<T> res(rows_, cols_);
     for (int i = 0; i < rows_; ++i) {
         for (int j = 0; j < cols_; ++j) {
-            res.set(i, j, at(i, j) + b.at(i, j));
+            res.set(i, j, at(i, j) + m.at(i, j));
         }
     }
     return res;
 }
 
 template<typename T>
-void mat<T>::operator+=( mat<T>& b) {
+void mat<T>::operator+=( mat<T>& m) {
     for (int i = 0; i < rows_; ++i) {
         for (int j = 0; j < cols_; ++j) {
-            set(i, j, at(i, j) + b.at(i, j));
+            set(i, j, at(i, j) + m.at(i, j));
         }
     }
 }
 
 template<typename T>
-mat<T> mat<T>::operator-( mat<T>& b) {
+mat<T> mat<T>::operator-( mat<T>& m) {
     mat<T> res(rows_, cols_);
     for (int i = 0; i < rows_; ++i) {
         for (int j = 0; j < cols_; ++j) {
-            res.set(i, j, at(i, j) - b.at(i, j));
+            res.set(i, j, at(i, j) - m.at(i, j));
         }
     }
     return res;
 }
 
 template<typename T>
-void mat<T>::operator-=( mat<T>& b) {
+void mat<T>::operator-=( mat<T>& m) {
     for (int i = 0; i < rows_; ++i) {
         for (int j = 0; j < cols_; ++j) {
-            set(i, j, at(i, j) - b.at(i, j));
+            set(i, j, at(i, j) - m.at(i, j));
         }
     }
 }
@@ -102,7 +100,6 @@ template <class T> mat<T>::mat(int rows, int cols) {
     rows_ = rows;
     cols_ = cols;
 }
-
 
 template <class T> mat<T>::mat(int rows, int cols, T value) {
     std::vector<T> tmp(cols * rows);
@@ -161,7 +158,6 @@ template <class T> void mat<T>::set(int rows, int cols, T value) {
     data_[rows * cols_ + cols] = value;
 }
 
-
 template<typename T>
 mat<T> mat<T>::operator*( mat<T>& m) {
     int mr = m.rows();
@@ -193,3 +189,4 @@ template <class T> int mat<T>::rows() {
 template <class T> void mat<T>::addAt(int rows, int cols, T value) {
     data_[rows * cols_ + cols] += value;
 }
+#endif
