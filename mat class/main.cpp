@@ -6,10 +6,10 @@ using namespace std;
 
 int main() {
 
-    mat<double> A(20, 20, 0);
-    mat<double> B(20, 20, 0);
-    A.set(0,0,1.234);
-    A.set(0,1,234);
+    mat<double> A(2, 2, 0);
+    mat<double> B(2, 2, 0);
+    A.set(0,0,1);
+    A.set(0,1,2);
     A.set(1,0,3);
     A.set(1,1,4);
 
@@ -18,8 +18,9 @@ int main() {
     B.set(1,0,7);
     B.set(1,1,8);
 
-    A = A.prod(B);
-    A.print();
+    A=A*B;
+    cout << A;
+
     return 0;
 
 }
