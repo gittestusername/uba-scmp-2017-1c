@@ -6,21 +6,22 @@ using namespace std;
 
 int main() {
 
-    mat<double> A(2, 2, 0);
-    mat<double> B(2, 2, 0);
-    A.set(0, 0, 1);
-    A.set(0, 1, 2);
-    A.set(1, 0, 3);
-    A.set(1, 1, 4);
+    mat<double> A(5, 5, 1);
+    A.id();
 
-    B.set(0, 0, 5);
-    B.set(0, 1, 6);
-    B.set(1, 0, 7);
-    B.set(1, 1, 8);
+    mat<double> B(5, 1, 0);
+    B.id();
+    B.set(0, 1);
+    B.set(1, 2);
+    B.set(2, 3);
 
-    A = A * B;
-    cout << A;
 
+
+
+    mat<double> x1 = A.jacobi(B);
+    cout << x1;
+    mat<double> x2 = A.gaussElimination(B);
+    cout << x2;
     return 0;
 
 }

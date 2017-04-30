@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <sstream>
+#include <cmath>   
 
 long double pi = acos(-1.0L);
 
@@ -18,7 +19,10 @@ template <class T> class mat {
     mat(int rows, int cols, T value);
     ~mat();
     T at(int rows, int cols);
+    T at(int rows);
     void set(int rows, int cols, T value);
+    void set(int rows, T value);
+
     void print();
     mat<T> prod(mat m);
     int cols();
@@ -30,6 +34,10 @@ template <class T> class mat {
     mat<T> operator-(mat<T>&);
     void operator-=(mat<T>&);
     mat<T> operator*(mat<T>&);
+    mat<T> jacobi(mat<T> b);
+    mat<T> gaussElimination(mat<T> b);
+    mat<T> copy();
+
 
 
 };
@@ -154,9 +162,19 @@ template <class T> T mat<T>::at(int rows, int cols) {
 }
 
 
+template <class T> T mat<T>::at(int rows) {
+    return data_[rows];
+}
+
 template <class T> void mat<T>::set(int rows, int cols, T value) {
     data_[rows * cols_ + cols] = value;
 }
+
+
+template <class T> void mat<T>::set(int rows, T value) {
+    data_[rows] = value;
+}
+
 
 template<typename T>
 mat<T> mat<T>::operator*( mat<T>& m) {
@@ -189,4 +207,121 @@ template <class T> int mat<T>::rows() {
 template <class T> void mat<T>::addAt(int rows, int cols, T value) {
     data_[rows * cols_ + cols] += value;
 }
+
+
+
+template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
+//TODO: Custom seed, threshold and niters version overloading.
+//TODO: Catch size problems function.
+    mat<T> x(rows(), 1, 0);
+    int nIters = 30;
+    for (int itr = 0; itr < nIters; ++itr)
+    {
+        for (int i = 0; i < cols(); ++i)
+        {
+            T sum;
+            sum = 0;
+            for (int j = 0; j < cols(); ++j)
+            {
+                if(i == j) continue;
+                sum += at(i,j)*x.at(j);
+            }
+            x.set(i, (b.at(i)-sum)/at(i,i));
+        }
+    }
+    return x;
+}
+
+
+template <class T> mat<T> mat<T>::copy() {
+    mat<T> res(rows(), cols(), 0);
+    for (int i = 0; i < rows(); ++i)
+    {
+        for (int j = 0; j < cols(); ++j)
+        {
+            res.set(i,j,at(i,j));
+        }
+    }
+    return res;
+}
+
+
+
+
+
+template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
+//TODO: Custom seed, threshold and niters version overloading.
+//TODO: Catch size problems function.
+//Warning: SLOW.
+    mat<T> X(rows(), 1, 0);
+    mat<T> augA(rows(),cols()+1, 0);
+    augA += *this;
+    for (int i = 0; i < augA.rows(); ++i)
+    {
+        augA.set(i, augA.cols()-1, b.at(i));
+    }
+
+
+    for (int i=0; i< cols(); i++) {
+        // Search for maximum in this column
+        T maxElem = std::abs(augA.at(i,i));
+        int maxRow = i;
+        for (int k = i+1; k < cols(); k++) {
+            if (std::abs(augA.at(k,i) > maxElem)) {
+                maxElem = std::abs(augA.at(k,i));
+                maxRow = k;
+            }
+        }
+        if(maxElem == 0){
+            std::cout << "ERROR: Matrix is singular" << std::endl;
+            mat<T> er(rows(), 0);
+            return er;
+            //TODO: Using the zero vector as a
+            // result and printing ERROR, tries
+            // to make the mistake visible,
+            // but we should, instead, rise
+            // an exeption.
+        }
+
+ 
+
+        // Swap maximum row with current row (column by column)
+        for (int k=i; k<rows()+1;k++) {
+            T tmp = augA.at(maxRow,k);
+            augA.set(maxRow, k, augA.at(i,k));
+            augA.set(i, k, tmp);
+        }
+
+        // Make all rows below this one 0 in current column
+        for (int k=i+1; k<rows(); k++) {
+            T c = -augA.at(k, i)/augA.at(i,i);
+            for(int j=i; j<rows()+1; j++) {
+                if (i==j) {
+                    augA.set(k,j,0);
+                } else {
+                    augA.addAt(k, j, c*augA.at(i,j));
+                }
+            }
+        }
+    }
+
+    // Solve equation Ax=b for an upper triangular matrix A
+    for (int i=cols()-1; i >= 0; i--) {
+        X.set(i, augA.at(i,cols())/augA.at(i,i));
+        for (int k = i-1; k >= 0; k--) {
+            augA.set(k,cols(), augA.at(k,cols()) - augA.at(k,i) * X.at(i));
+        }
+    }
+    return X;
+}
+
+
+
+
+
+
+
+
 #endif
+
+
