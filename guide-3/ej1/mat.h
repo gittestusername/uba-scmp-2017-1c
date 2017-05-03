@@ -325,11 +325,13 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
     }
 
     //Then we must fill the discretization into the matrix.
-    int lenTails = (scheme.rows() - 1) / 2; //(123) (4) (567) = (tail) (mid) (tail)
+    int lenTails = (scheme.cols() -1) / 2; //'(123)' (4) (567) = '(tail)' (mid) (tail)
 
     for (int i = 0; i < rows() ; ++i) {
         for (int j = 0; j < scheme.cols(); ++j) {
-            set(i, i - lenTails + j, scheme.at(j));
+            int c = i - lenTails + j;
+            if(c >= 0 && c < cols())
+                set(i, c, scheme.at(j));
         }
     }
 

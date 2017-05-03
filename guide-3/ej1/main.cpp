@@ -23,8 +23,8 @@ int main() {
     scheme.set(0, 0 , 1.0 / 4.0);
 
     A.fillScheme(scheme);
-
     cout << A << endl;
+    
     return 0;
 
 }
