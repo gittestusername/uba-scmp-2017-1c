@@ -23,8 +23,6 @@ template <class T> class mat {
     void set(int rows, int cols, T value);
     void set(int rows, T value);
 
-    void print();
-    mat<T> prod(mat m);
     int cols();
     int rows();
     void addAt(int rows, int cols, T value);
@@ -135,26 +133,6 @@ template <class T> void mat<T>::id() {
         }
 
     }
-}
-
-template <class T> void mat<T>::print() {
-    for (int i = 0; i < rows_; ++i) {
-        std::cout << std::endl;
-        for (int j = 0; j < cols_; ++j) {
-            std::stringstream ss;
-            ss << data_[i * cols_ + j];
-            std::string str = ss.str();
-            int len = str.length();
-            int maxSpaces = 7; //TODO: Use max of matrix instead of a fixed value.
-            int spaces = maxSpaces - len;
-            while (spaces > 0) {
-                std::cout << " ";
-                spaces--;
-            }
-            std::cout << " " << data_[i * cols_ + j];
-        }
-    }
-    std::cout << std::endl;
 }
 
 
