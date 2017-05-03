@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "mat.h"
+#include "../../mat/mat.h"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ int main() {
 
     A.fillScheme(scheme);
     cout << A << endl;
-    
+
     return 0;
 
 }
