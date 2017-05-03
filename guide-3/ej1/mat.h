@@ -4,7 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <sstream>
-#include <cmath>   
+#include <cmath>
 
 long double pi = acos(-1.0L);
 
@@ -169,7 +169,6 @@ template <class T> T mat<T>::at(int rows) {
 
 template <class T> void mat<T>::set(int rows, int cols, T value) {
     data_[rows * cols_ + cols] = value;
-    std::cout << "setting: " << value << std::endl;
 }
 
 
@@ -217,18 +216,15 @@ template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
 //TODO: Catch size problems function.
     mat<T> x(rows(), 1, 0);
     int nIters = 30;
-    for (int itr = 0; itr < nIters; ++itr)
-    {
-        for (int i = 0; i < cols(); ++i)
-        {
+    for (int itr = 0; itr < nIters; ++itr) {
+        for (int i = 0; i < cols(); ++i) {
             T sum;
             sum = 0;
-            for (int j = 0; j < cols(); ++j)
-            {
-                if(i == j) continue;
-                sum += at(i,j)*x.at(j);
+            for (int j = 0; j < cols(); ++j) {
+                if (i == j) continue;
+                sum += at(i, j) * x.at(j);
             }
-            x.set(i, (b.at(i)-sum)/at(i,i));
+            x.set(i, (b.at(i) - sum) / at(i, i));
         }
     }
     return x;
@@ -237,11 +233,9 @@ template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
 
 template <class T> mat<T> mat<T>::copy() {
     mat<T> res(rows(), cols(), 0);
-    for (int i = 0; i < rows(); ++i)
-    {
-        for (int j = 0; j < cols(); ++j)
-        {
-            res.set(i,j,at(i,j));
+    for (int i = 0; i < rows(); ++i) {
+        for (int j = 0; j < cols(); ++j) {
+            res.set(i, j, at(i, j));
         }
     }
     return res;
@@ -256,25 +250,24 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
 //TODO: Catch size problems function.
 //Warning: SLOW.
     mat<T> X(rows(), 1, 0);
-    mat<T> augA(rows(),cols()+1, 0);
+    mat<T> augA(rows(), cols() + 1, 0);
     augA += *this;
-    for (int i = 0; i < augA.rows(); ++i)
-    {
-        augA.set(i, augA.cols()-1, b.at(i));
+    for (int i = 0; i < augA.rows(); ++i) {
+        augA.set(i, augA.cols() - 1, b.at(i));
     }
 
 
-    for (int i=0; i< cols(); i++) {
+    for (int i = 0; i < cols(); i++) {
         // Search for maximum in this column
-        T maxElem = std::abs(augA.at(i,i));
+        T maxElem = std::abs(augA.at(i, i));
         int maxRow = i;
-        for (int k = i+1; k < cols(); k++) {
-            if (std::abs(augA.at(k,i) > maxElem)) {
-                maxElem = std::abs(augA.at(k,i));
+        for (int k = i + 1; k < cols(); k++) {
+            if (std::abs(augA.at(k, i) > maxElem)) {
+                maxElem = std::abs(augA.at(k, i));
                 maxRow = k;
             }
         }
-        if(maxElem == 0){
+        if (maxElem == 0) {
             std::cout << "ERROR: Matrix is singular" << std::endl;
             mat<T> er(rows(), 0);
             return er;
@@ -285,33 +278,33 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
             // an exeption.
         }
 
- 
+
 
         // Swap maximum row with current row (column by column)
-        for (int k=i; k<rows()+1;k++) {
-            T tmp = augA.at(maxRow,k);
-            augA.set(maxRow, k, augA.at(i,k));
+        for (int k = i; k < rows() + 1; k++) {
+            T tmp = augA.at(maxRow, k);
+            augA.set(maxRow, k, augA.at(i, k));
             augA.set(i, k, tmp);
         }
 
         // Make all rows below this one 0 in current column
-        for (int k=i+1; k<rows(); k++) {
-            T c = -augA.at(k, i)/augA.at(i,i);
-            for(int j=i; j<rows()+1; j++) {
-                if (i==j) {
-                    augA.set(k,j,0);
+        for (int k = i + 1; k < rows(); k++) {
+            T c = -augA.at(k, i) / augA.at(i, i);
+            for (int j = i; j < rows() + 1; j++) {
+                if (i == j) {
+                    augA.set(k, j, 0);
                 } else {
-                    augA.addAt(k, j, c*augA.at(i,j));
+                    augA.addAt(k, j, c * augA.at(i, j));
                 }
             }
         }
     }
 
     // Solve equation Ax=b for an upper triangular matrix A
-    for (int i=cols()-1; i >= 0; i--) {
-        X.set(i, augA.at(i,cols())/augA.at(i,i));
-        for (int k = i-1; k >= 0; k--) {
-            augA.set(k,cols(), augA.at(k,cols()) - augA.at(k,i) * X.at(i));
+    for (int i = cols() - 1; i >= 0; i--) {
+        X.set(i, augA.at(i, cols()) / augA.at(i, i));
+        for (int k = i - 1; k >= 0; k--) {
+            augA.set(k, cols(), augA.at(k, cols()) - augA.at(k, i) * X.at(i));
         }
     }
     return X;
@@ -319,34 +312,30 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
 
 
 template <class T> void mat<T>::fillScheme(mat<T> scheme) {
-    if(  (scheme.rows()>1) || (scheme.cols()%2 != 1) ) {
+    if (  (scheme.rows() > 1) || (scheme.cols() % 2 != 1) ) {
         std::cout << "ERROR: Scheme matrix must be a one dimensional matrix of odd length" << std::endl;
         return;
     }
 
     //First we set everything to zero.
-    for (int i = 0; i < rows(); ++i)
-    {
-        for (int j = 0; j < cols(); ++j)
-        {
-            set(i,j,0);
+    for (int i = 0; i < rows(); ++i) {
+        for (int j = 0; j < cols(); ++j) {
+            set(i, j, 0);
         }
     }
 
     //Then we must fill the discretization into the matrix.
-    int lenTails = (scheme.rows()-1)/2; //(123) (4) (567) = (tail) (mid) (tail)
+    int lenTails = (scheme.rows() - 1) / 2; //(123) (4) (567) = (tail) (mid) (tail)
 
-    for (int i = 0; i < rows() ; ++i)
-    {
-        for (int j = 0; j < scheme.cols(); ++j)
-        {
-            set(i,i-lenTails+j,scheme.at(j));
+    for (int i = 0; i < rows() ; ++i) {
+        for (int j = 0; j < scheme.cols(); ++j) {
+            set(i, i - lenTails + j, scheme.at(j));
         }
     }
 
     //Note that the boundary conditions are not trated here. This asumes there are not boundaries.
 
-return; 
+    return;
 }
 
 

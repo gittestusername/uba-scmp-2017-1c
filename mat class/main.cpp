@@ -6,22 +6,20 @@ using namespace std;
 
 int main() {
 
-    mat<double> A(5, 5, 1);
-    A.id();
+    double delta = 1;
+    double max = 10;
+    int n = max/delta;
 
-    mat<double> B(5, 1, 0);
-    B.id();
-    B.set(0, 1);
-    B.set(1, 2);
-    B.set(2, 3);
+    mat<double> A(n, n, 0);
+    //its n, not n*n, because its unidimensional.
+    mat<double> scheme(1, n, 0);
+    scheme.set(0,n/2, 1);
+    scheme.set(0,n/2 + 1 , 1/4);
+    scheme.set(0,n/2 - 1 , 1/4);
+    cout << scheme.at(0,5) << endl;
 
 
-
-
-    mat<double> x1 = A.jacobi(B);
-    cout << x1;
-    mat<double> x2 = A.gaussElimination(B);
-    cout << x2;
+    cout << scheme << endl;
     return 0;
 
 }
