@@ -12,18 +12,35 @@ int main() {
 
 
     double delta = 1;
-    double max = 10;
+    double max = 3;
     int n = max / delta;
 
-    mat<double> A(n, n, 0);
-    //its n, not n*n, because its unidimensional.
-    mat<double> scheme(1, 3, 0);
-    scheme.set(0, 1 , 1);
-    scheme.set(0, 2 , 1.0 / 4.0);
-    scheme.set(0, 0 , 1.0 / 4.0);
+    mat<double> A(n, 2*n, 3);
+    mat<double> B(2*n, n, 3);
 
-    A.fillScheme(scheme);
-    cout << A << endl;
+    int tmp = 1;
+for (int i = 0; i < A.rows(); ++i)
+{
+    for (int j = 0; j < A.cols(); ++j)
+    {
+        A.set(i,j, tmp);
+        B.set(j,i, (tmp)%3 + tmp);
+        tmp++;
+    }
+}
+
+    mat<double> C1 = (A.sparseProd(B));
+    mat<double> C2 = A*B;
+    mat<double> dif = C1-C2;
+
+
+    cout << "A" << endl << endl << A << endl;
+
+    cout << "B" << endl << endl << B << endl;
+    cout << "C1" << endl << endl << C1 << endl;
+
+    cout << "C2" << endl << endl << C2 << endl;
+    cout << "dif" << endl << endl << dif << endl;
 
     return 0;
 

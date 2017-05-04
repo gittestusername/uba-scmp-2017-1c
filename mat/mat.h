@@ -32,7 +32,12 @@ template <class T> class mat {
     mat<T> operator-(mat<T>&);
     void operator-=(mat<T>&);
     mat<T> operator*(mat<T>&);
+
+
     mat<T> jacobi(mat<T> b);
+
+    mat<T> sparseProd(mat<T> m);
+
     mat<T> gaussElimination(mat<T> b);
     mat<T> copy();
     void fillScheme(mat<T> scheme);
@@ -142,6 +147,8 @@ template <class T> T mat<T>::at(int rows, int cols) {
 
 
 template <class T> T mat<T>::at(int rows) {
+    if (cols() > 1)
+        std::cout << " ERROR: Unidimentional indexing in multidimentional matrix" << std::endl;
     return data_[rows];
 }
 
@@ -159,14 +166,14 @@ template<typename T>
 mat<T> mat<T>::operator*( mat<T>& m) {
     int mr = m.rows();
     int mc = m.cols();
-    if (cols_ != mr) {
+    if (cols() != mr) {
         //ERROR. //TODO: Implement.
     }
-    mat<T> res(rows_, mc, 0);
+    mat<T> res(rows(), mc, 0);
 
-    for (int i = 0; i < rows_; ++i) {
+    for (int i = 0; i < rows(); ++i) {
         for (int j = 0; j < mc; ++j) {
-            for (int k = 0; k < rows_; ++k) {
+            for (int k = 0; k < cols(); ++k) {
                 res.addAt(i, j, at(i, k)*m.at(k, j));
             }
         }
@@ -308,7 +315,7 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
     for (int i = 0; i < rows() ; ++i) {
         for (int j = 0; j < scheme.cols(); ++j) {
             int c = i - lenTails + j;
-            if(c >= 0 && c < cols())
+            if (c >= 0 && c < cols())
                 set(i, c, scheme.at(j));
         }
     }
@@ -317,6 +324,56 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
 
     return;
 }
+
+
+
+
+template<typename T>
+mat<T> mat<T>::sparseProd( mat<T> m) {
+
+    if (cols_ != m.rows()) {
+        //ERROR. //TODO: Implement.
+    }
+    mat<T> res(rows(), m.cols(), 0);
+
+    std::vector< std::vector< T > > rws;
+    for (int i = 0; i < rows(); i++) {
+        std::vector< T > r;
+        for (int j = 0; j < cols(); j++) {
+            if (at(i, j) != 0)
+                r.push_back(j);
+        }
+        rws.push_back(r);
+    }
+
+
+
+    std::cout << "RWS: " << std::endl;
+    for (int i = 0; i < rws.size(); ++i) {
+        std::cout << std::endl;
+        for (int j = 0; j < rws[i].size(); ++j) {
+            std::cout << rws[i][j] << " ";
+        }
+    }
+
+
+
+    for (int mc = 0; mc < m.cols(); ++mc) {
+        for (int i = 0; i < rows(); ++i) {
+            std::cout << "rws[i].size() = " << rws[i].size() << std::endl;
+            std::cout << "cols() = " << cols() << std::endl;
+            std::cout << "rows()) = " << rows() << std::endl;
+
+            for (int jElem = 0; jElem < rws[i].size(); ++jElem) {
+                res.addAt(i, mc, at(i, rws[i][jElem])*m.at(rws[i][jElem], mc));
+            }
+        }
+    }
+
+    return res;
+}
+
+
 
 
 
