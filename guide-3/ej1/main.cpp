@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>  // for high_resolution_clock
 #include "../../mat/mat.h"
 
 using namespace std;
@@ -10,37 +11,48 @@ int main() {
 // where x in [0;1] and t > 0 are the spatial and temporal variables.
 // u(x,t)
 
-
-    double delta = 1;
-    double max = 3;
-    int n = max / delta;
-
-    mat<double> A(n, 2*n, 3);
-    mat<double> B(2*n, n, 3);
-
-    int tmp = 1;
-for (int i = 0; i < A.rows(); ++i)
-{
-    for (int j = 0; j < A.cols(); ++j)
-    {
-        A.set(i,j, tmp);
-        B.set(j,i, (tmp)%3 + tmp);
-        tmp++;
-    }
-}
-
-    mat<double> C1 = (A.sparseProd(B));
-    mat<double> C2 = A*B;
-    mat<double> dif = C1-C2;
+    int n = 3000;
+    mat<double> scheme(1,201,1);
 
 
-    cout << "A" << endl << endl << A << endl;
+    mat<double> A(n, n, 0);
+    mat<double> B(n, 1, 1);
 
-    cout << "B" << endl << endl << B << endl;
-    cout << "C1" << endl << endl << C1 << endl;
+    A.fillScheme(scheme);
 
-    cout << "C2" << endl << endl << C2 << endl;
-    cout << "dif" << endl << endl << dif << endl;
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    mat<double> C1  = A*B;
+    auto t2 = std::chrono::high_resolution_clock::now();
+ 
+    // integral duration: requires duration_cast
+    auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+ 
+    // fractional duration: no duration_cast needed
+    std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
+ 
+    std::cout << "regular took " << int_ms.count() << " whole milliseconds\n";
+
+
+
+
+
+
+
+
+    t1 = std::chrono::high_resolution_clock::now();
+    mat<double> C2  = A.sparseProd(B);
+    t2 = std::chrono::high_resolution_clock::now();
+ 
+    // integral duration: requires duration_cast
+    int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+ 
+    // fractional duration: no duration_cast needed
+    fp_ms = t2 - t1;
+ 
+    std::cout << "sparse took " << int_ms.count() << " whole milliseconds\n";
+
+
 
     return 0;
 

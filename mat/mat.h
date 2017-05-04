@@ -26,6 +26,8 @@ template <class T> class mat {
     int cols();
     int rows();
     void addAt(int rows, int cols, T value);
+    void addAt(int rows, T value);
+
     void id();
     mat<T> operator+(mat<T>&);
     void operator+=(mat<T>&);
@@ -141,15 +143,15 @@ template <class T> void mat<T>::id() {
 }
 
 
-template <class T> T mat<T>::at(int rows, int cols) {
-    return data_[rows * cols_ + cols];
+template <class T> T mat<T>::at(int row, int col) {
+    return data_[row * cols_ + col];
 }
 
 
-template <class T> T mat<T>::at(int rows) {
-    if (cols() > 1)
+template <class T> T mat<T>::at(int row) {
+    if (cols() > 1 && this->rows() > 1)
         std::cout << " ERROR: Unidimentional indexing in multidimentional matrix" << std::endl;
-    return data_[rows];
+    return data_[row]; //Because its unidimentional, it doesnt matter if its vertical or horizontal.
 }
 
 template <class T> void mat<T>::set(int rows, int cols, T value) {
@@ -157,8 +159,10 @@ template <class T> void mat<T>::set(int rows, int cols, T value) {
 }
 
 
-template <class T> void mat<T>::set(int rows, T value) {
-    data_[rows] = value;
+template <class T> void mat<T>::set(int row, T value) {
+    if (cols() > 1 && this->rows() > 1)
+        std::cout << " ERROR: Unidimentional indexing in multidimentional matrix" << std::endl;
+    data_[row] = value; //Because its unidimentional, it doesnt matter if its vertical or horizontal.
 }
 
 
@@ -194,7 +198,9 @@ template <class T> void mat<T>::addAt(int rows, int cols, T value) {
     data_[rows * cols_ + cols] += value;
 }
 
-
+template <class T> void mat<T>::addAt(int rows, T value) {
+    data_[rows] += value;
+}
 
 template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
 //TODO: Custom seed, threshold and n-iters version overloading.
@@ -310,27 +316,24 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
     }
 
     //Then we must fill the discretization into the matrix.
-    int lenTails = (scheme.cols() -1) / 2; //'(123)' (4) (567) = '(tail)' (mid) (tail)
+    int lenTails = (scheme.cols() - 1) / 2; //'(123)' (4) (567) = '(tail)' (mid) (tail)
 
     for (int i = 0; i < rows() ; ++i) {
         for (int j = 0; j < scheme.cols(); ++j) {
             int c = i - lenTails + j;
-            if (c >= 0 && c < cols())
+            if (c >= 0 && c < cols()) {
                 set(i, c, scheme.at(j));
+            }
         }
     }
 
-    //Note that the boundary conditions are not trated here. This asumes there are not boundaries.
-
+    //Note that the boundary conditions are not trated here. 
     return;
 }
 
-
-
-
 template<typename T>
-mat<T> mat<T>::sparseProd( mat<T> m) {
-
+mat<T> mat<T>::sparseProd(mat<T> m) {
+//Halves the time for less than 5% elements different to zero.
     if (cols_ != m.rows()) {
         //ERROR. //TODO: Implement.
     }
@@ -346,24 +349,8 @@ mat<T> mat<T>::sparseProd( mat<T> m) {
         rws.push_back(r);
     }
 
-
-
-    std::cout << "RWS: " << std::endl;
-    for (int i = 0; i < rws.size(); ++i) {
-        std::cout << std::endl;
-        for (int j = 0; j < rws[i].size(); ++j) {
-            std::cout << rws[i][j] << " ";
-        }
-    }
-
-
-
     for (int mc = 0; mc < m.cols(); ++mc) {
         for (int i = 0; i < rows(); ++i) {
-            std::cout << "rws[i].size() = " << rws[i].size() << std::endl;
-            std::cout << "cols() = " << cols() << std::endl;
-            std::cout << "rows()) = " << rows() << std::endl;
-
             for (int jElem = 0; jElem < rws[i].size(); ++jElem) {
                 res.addAt(i, mc, at(i, rws[i][jElem])*m.at(rws[i][jElem], mc));
             }
@@ -372,10 +359,6 @@ mat<T> mat<T>::sparseProd( mat<T> m) {
 
     return res;
 }
-
-
-
-
 
 #endif
 
