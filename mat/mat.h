@@ -27,6 +27,8 @@ template <class T> class mat {
     int rows();
     void addAt(int rows, int cols, T value);
     void addAt(int rows, T value);
+    void setRow(int row, T value);
+    void setCol(int col, T value);
 
     void id();
     mat<T> operator+(mat<T>&);
@@ -35,11 +37,8 @@ template <class T> class mat {
     void operator-=(mat<T>&);
     mat<T> operator*(mat<T>&);
 
-
     mat<T> jacobi(mat<T> b);
-
     mat<T> sparseProd(mat<T> m);
-
     mat<T> gaussElimination(mat<T> b);
     mat<T> copy();
     void fillScheme(mat<T> scheme);
@@ -143,6 +142,24 @@ template <class T> void mat<T>::id() {
 }
 
 
+
+
+template <class T> void mat<T>::setCol(int col, T value) {
+    for (int i = 0; i < rows(); ++i) {
+        set(i, col, value);
+    }
+}
+
+
+
+
+template <class T> void mat<T>::setRow(int row, T value) {
+    for (int i = 0; i < cols(); ++i) {
+        set(row, i, value);
+    }
+}
+
+
 template <class T> T mat<T>::at(int row, int col) {
     return data_[row * cols_ + col];
 }
@@ -206,7 +223,7 @@ template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
 //TODO: Custom seed, threshold and n-iters version overloading.
 //TODO: Catch size problems function.
     mat<T> x(rows(), 1, 0);
-    int nIters = 30;
+    int nIters = 25;
     for (int itr = 0; itr < nIters; ++itr) {
         for (int i = 0; i < cols(); ++i) {
             T sum;
