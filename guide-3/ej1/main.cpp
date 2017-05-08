@@ -18,8 +18,8 @@ int main() {
     long double pullX = 0.5;    //meters from left.
     long double pull = 0.07;   //pull meters.
 
-    long double dx = 0.05;
-    long double dt = 0.05;
+    long double dx = (double)0.2;
+    long double dt = 0.5;
 
     int nX = round(xMax / dx) + 1; 
     int nT = round(tMax / dt) + 1;
@@ -28,6 +28,7 @@ int main() {
     //the same happens for time.
     int n = nX * nT;
     long double s = (dt * dt) / (k * dx * dx);
+    s = (double)1/3;
 
 
 
@@ -106,8 +107,8 @@ int main() {
     A.set(n - 1, n - 1, 1.0);
     B.set(n - 1, 0.0);
 
-
-    //cout << A << endl;
+    cout << B << endl;
+    cout << A << endl;
 
     mat<long double> X = A.gaussElimination(B);
     int count = 0;

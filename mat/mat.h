@@ -55,7 +55,7 @@ template<class T> inline std::ostream& operator<<(std::ostream& os, mat<T>& m) {
             ss << m.at(i, j);
             std::string str = ss.str();
             int len = str.length();
-            int maxSpaces = 7; //TODO: Use max of matrix instead of a fixed value.
+            int maxSpaces = 10; //TODO: Use max of matrix instead of a fixed value.
             int spaces = maxSpaces - len;
             while (spaces > 0) {
                 os << " ";
