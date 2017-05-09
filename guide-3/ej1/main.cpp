@@ -11,24 +11,23 @@ int main() {
 
     long double m = 1.0 / 1000.0;         //kg.
     long double xMax = 1;            //meters
-    long double tMax = 1;            //tMin and xMin are zero.
+    long double tMax = 3;            //tMin and xMin are zero.
     long double mu = m / xMax;
     long double tension = 40.0 * 9.80665;    //Newton. Tension.
     long double k = tension / mu;
     long double pullX = 0.5;    //meters from left.
     long double pull = 0.07;   //pull meters.
 
-    long double dx = (double)0.2;
-    long double dt = 0.5;
+    long double dx = 0.1;
+    long double dt = 0.2;
 
-    int nX = round(xMax / dx) + 1; 
+    int nX = round(xMax / dx) + 1;
     int nT = round(tMax / dt) + 1;
     //if dx = 0.5, we need the values of x = 0,
     // x = 0.5, and x = 1.0. so there is one more.
     //the same happens for time.
     int n = nX * nT;
     long double s = (dt * dt) / (k * dx * dx);
-    s = (double)1/3;
 
 
 
@@ -42,30 +41,31 @@ int main() {
     mat<long double> scheme(1, schemeSize, 0);
 
 //My scheme
-        scheme.set(lenTails, 2.0 - 2.0*s);
-        scheme.set(lenTails - 1, s);
-        scheme.set(lenTails + 1, s);
-        scheme.set(lenTails - nX, -1.0);
-
+    scheme.set(lenTails, 2.0 - 2.0 * s);
+    scheme.set(lenTails - 1, s);
+    scheme.set(lenTails + 1, s);
+    scheme.set(lenTails - nX, -1.0);
 
 //From class.
- /*  
-    scheme.set(lenTails, 2.0 * (1 - k * (dt * dt) / (dx * dx)));
-    scheme.set(lenTails - 1, k * (dt * dt) / (dx * dx));
-    scheme.set(lenTails + 1, k * (dt * dt) / (dx * dx));
-    scheme.set(lenTails - nX, -1.0);
-*/
+    /*
+       scheme.set(lenTails, 2.0 * (1 - k * (dt * dt) / (dx * dx)));
+       scheme.set(lenTails - 1, k * (dt * dt) / (dx * dx));
+       scheme.set(lenTails + 1, k * (dt * dt) / (dx * dx));
+       scheme.set(lenTails - nX, -1.0);
+    */
 
 
 //From class,  simplified (asumes dt = dx = 1.)
-/*  
-    scheme.set(lenTails - 1, 1);
-    scheme.set(lenTails + 1, 1);
-    scheme.set(lenTails - nX, -1);
-*/
+    /*
+        scheme.set(lenTails - 1, 1);
+        scheme.set(lenTails + 1, 1);
+        scheme.set(lenTails - nX, -1);
+    */
 
 
     A.fillScheme(scheme);
+
+
     long double x = 0;
     for (int i = 0; i < nX; ++i) {
         A.setRow(i, 0);
@@ -83,7 +83,7 @@ int main() {
 
         //We set a second point, because the scheme uses the last two iterations.
         int nxt = i + nX;
-        A.setRow(nxt,0);
+        A.setRow(nxt, 0);
         A.set(nxt, nxt, 1);
         B.set(nxt, u);
 
@@ -100,15 +100,15 @@ int main() {
         A.set(row - 1, row - 1, 1);
 
         B.set(row, 0.00);
-        B.set(row-1, 0.00);
+        B.set(row - 1, 0.00);
 
     }
     A.setRow(n - 1, 0.0);
     A.set(n - 1, n - 1, 1.0);
     B.set(n - 1, 0.0);
 
-    cout << B << endl;
-    cout << A << endl;
+    //cout << B << endl;
+    // cout << A << endl;
 
     mat<long double> X = A.gaussElimination(B);
     int count = 0;
