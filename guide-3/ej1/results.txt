@@ -1,0 +1,1 @@
+El tiempo que tarda la cuerda en volver a su estado inicial segun la simulacion es 5.1e-05

@@ -7,71 +7,41 @@ using namespace std;
 
 int main() {
 
-
-
-    long double m = 1.0 / 1000.0;         //kg.
-    long double xMax = 1;            //meters
-    long double tMax = 3;            //tMin and xMin are zero.
+    long double m = 1.0 / 1000.0;             //kg.
+    long double xMax = 1.0;                     //meters
+    long double tMax = 0.01;                     //tMin and xMin are zero.
     long double mu = m / xMax;
-    long double tension = 40.0 * 9.80665;    //Newton. Tension.
-    long double k = tension / mu;
-    long double pullX = 0.5;    //meters from left.
-    long double pull = 0.07;   //pull meters.
+    long double tension = 40.0 * 9.80665;     //Newton. Tension.
+    long double pullX = 0.5;                  //meters from left.
+    long double pull = 0.07;                  //pull meters.
 
-    long double dx = 0.1;
-    long double dt = 0.2;
+    long double dx = 0.01;
+    long double dt = 0.000001;
 
     int nX = round(xMax / dx) + 1;
     int nT = round(tMax / dt) + 1;
     //if dx = 0.5, we need the values of x = 0,
     // x = 0.5, and x = 1.0. so there is one more.
     //the same happens for time.
-    int n = nX * nT;
-    long double s = (dt * dt) / (k * dx * dx);
+    long double s = (tension / mu)*(dt * dt) / ( dx * dx);
 
+/*
+    cout << "s = " << s << endl;
+    cout << "tension = " << tension << endl;
+    cout << "mu = " << mu << endl;
+    cout << "m = " << m << endl;
+    return 0;
+*/
 
-
-
-    mat<long double> A(n, n);
-    mat<long double> B(n, 1, 0);
-    int schemeSize = 4 * nX + 1;
-    int lenTails = (schemeSize - 1) / 2;
-
-
-    mat<long double> scheme(1, schemeSize, 0);
-
-//My scheme
-    scheme.set(lenTails, 2.0 - 2.0 * s);
-    scheme.set(lenTails - 1, s);
-    scheme.set(lenTails + 1, s);
-    scheme.set(lenTails - nX, -1.0);
-
-//From class.
-    /*
-       scheme.set(lenTails, 2.0 * (1 - k * (dt * dt) / (dx * dx)));
-       scheme.set(lenTails - 1, k * (dt * dt) / (dx * dx));
-       scheme.set(lenTails + 1, k * (dt * dt) / (dx * dx));
-       scheme.set(lenTails - nX, -1.0);
-    */
-
-
-//From class,  simplified (asumes dt = dx = 1.)
-    /*
-        scheme.set(lenTails - 1, 1);
-        scheme.set(lenTails + 1, 1);
-        scheme.set(lenTails - nX, -1);
-    */
-
-
-    A.fillScheme(scheme);
+    mat<long double> U0(nX, 1, 0);
+    mat<long double> U1(nX, 1, 0);
 
 
     long double x = 0;
     for (int i = 0; i < nX; ++i) {
-        A.setRow(i, 0);
-        A.set(i, i, 1);
+ 
 
-        //Fill B.
+        //Fill U0.
         long double slope = pull / pullX;
         long double u;
         if (x < pullX) {
@@ -79,51 +49,43 @@ int main() {
         } else {
             u = pull - slope * (x - pullX);
         }
-        B.set(i, u);
-
-        //We set a second point, because the scheme uses the last two iterations.
-        int nxt = i + nX;
-        A.setRow(nxt, 0);
-        A.set(nxt, nxt, 1);
-        B.set(nxt, u);
+        U0.set(i, u);
+        U1.set(i, u);
 
         x += dx;
     }
 
-    //We need now to set the A and B so that x0 and xf ar always 0.
-    for (int i = 1; i < nT; ++i) {
-        int row = i * nX;
-        A.setRow(row, 0);
-        A.set(row, row, 1);
+    mat<long double> U2(nX, 1, 0);
 
-        A.setRow(row - 1, 0);
-        A.set(row - 1, row - 1, 1);
+    //cout << U0 << endl;
 
-        B.set(row, 0.00);
-        B.set(row - 1, 0.00);
-
-    }
-    A.setRow(n - 1, 0.0);
-    A.set(n - 1, n - 1, 1.0);
-    B.set(n - 1, 0.0);
-
-    //cout << B << endl;
-    // cout << A << endl;
-
-    mat<long double> X = A.gaussElimination(B);
-    int count = 0;
-
-
-    for (int i = 0; i < X.rows(); ++i) {
-        count++;
-        cout << X.at(i) << " ";
-
-        if (count == nX && i < X.rows() - 1) {
-            count = 0;
-            cout << endl;
+    for (int t = 0; t < nT; ++t) {
+        if(true || t%20 == 3){
+           for (int j = 0; j < U0.rows(); ++j)
+           {
+               cout << U0.at(j) << " ";
+           }
+           cout << endl;
         }
+       for (int i = 1; i < nX-1; ++i)
+       {
+           //U2.set(i,s*(U1.at(i+1) -2*U1.at(i) + U1.at(i-1)) + 2*U1.at(i) + U0.at(i));
+           U2.set(i, s*(U1.at(i+1) + U1.at(i-1)) + 2.0*(1.0-s)*(U1.at(i)) - U0.at(i));
+       }
+       U0 = U1;
+       U1 = U2;
+       long double max = 0.0;
+       for (int i = 0; i < U0.rows(); ++i)
+       {
+        if(U0.at(i) > max) max = U0.at(i);
+       }
+       if (t > 50 && max >= pull - 0.005)
+       {
+            cout << t*dt << endl;
+           return 0;
+       }
+
     }
 
-
-
+    cout << s << endl;
 }
