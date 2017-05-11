@@ -74,6 +74,8 @@ int main() {
        }
        U0 = U1;
        U1 = U2;
+       /*
+       //Calculate the period of the wave.
        long double max = 0.0;
        for (int i = 0; i < U0.rows(); ++i)
        {
@@ -84,7 +86,7 @@ int main() {
             cout << t*dt << endl;
            return 0;
        }
-
+        */
     }
 
     cout << s << endl;
