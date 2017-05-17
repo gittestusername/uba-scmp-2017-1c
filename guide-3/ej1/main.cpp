@@ -74,20 +74,29 @@ int main() {
        }
        U0 = U1;
        U1 = U2;
-       /*
-       //Calculate the period of the wave.
+              //Calculate the period of the wave.
        long double max = 0.0;
+
+      
+
+/*
        for (int i = 0; i < U0.rows(); ++i)
        {
         if(U0.at(i) > max) max = U0.at(i);
        }
+
+
        if (t > 50 && max >= pull - 0.005)
        {
             cout << t*dt << endl;
+            cout << " at iteration " <<  t << endl;
            return 0;
        }
-        */
+*/
+
+
+
     }
 
-    cout << s << endl;
+    //cout << s << endl;
 }

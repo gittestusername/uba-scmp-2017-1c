@@ -4,7 +4,7 @@ M = dlmread('out');
 n = size(M);
 nc = n(1);
 
-for i = 1:nc
+for i = 1:10:nc
     %figure;
     plot(M(i,:)), axis([0 120 -0.4 0.4])
     drawnow
