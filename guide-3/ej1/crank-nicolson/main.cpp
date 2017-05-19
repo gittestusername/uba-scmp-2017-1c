@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>  // for high_resolution_clock.
-#include "../../mat/mat.h"
+#include "../../../mat/mat.h"
 
 using namespace std;
 
@@ -72,6 +72,7 @@ int main() {
            //U2.set(i,s*(U1.at(i+1) -2*U1.at(i) + U1.at(i-1)) + 2*U1.at(i) + U0.at(i));
            U2.set(i, s*(U1.at(i+1) + U1.at(i-1)) + 2.0*(1.0-s)*(U1.at(i)) - U0.at(i));
        }
+       
        U0 = U1;
        U1 = U2;
               //Calculate the period of the wave.
