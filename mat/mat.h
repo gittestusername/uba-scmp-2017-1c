@@ -172,11 +172,17 @@ template <class T> T mat<T>::at(int row, int col) {
 template <class T> T mat<T>::at(int row) {
     if (cols() > 1 && this->rows() > 1)
         std::cout << " ERROR: Unidimentional indexing in multidimentional matrix" << std::endl;
+    if (cols() <= row && this->rows() <= row){
+        std::cout << " ERROR: Index out of Matrix" << std::endl;
+        return 0;
+    }
     return data_[row]; //Because its unidimentional, it doesnt matter if its vertical or horizontal.
 }
 
-template <class T> void mat<T>::set(int rows, int cols, T value) {
-    data_[rows * cols_ + cols] = value;
+template <class T> void mat<T>::set(int row, int col, T value) {
+    if(row >= rows() || col >= cols())
+        std::cout << " ERROR: Index out of Matrix" << std::endl;
+    data_[row * cols() + col] = value;
 }
 
 
@@ -281,7 +287,7 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
         }
         if (maxElem == 0) {
             std::cout << "ERROR: Matrix is singular" << std::endl;
-            mat<T> er(rows(), 0);
+            mat<T> er(rows(), 1);
             return er;
             //TODO: Using the zero vector as a
             // result and printing ERROR, tries
@@ -348,7 +354,7 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
         }
     }
 
-    //Note that the boundary conditions are not trated here. 
+    //Note that the boundary conditions are not trated here.
     return;
 }
 

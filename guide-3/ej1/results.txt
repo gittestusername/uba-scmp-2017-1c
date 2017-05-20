@@ -1,0 +1,18 @@
+
+
+	a) v = (T/u)^0.5
+	   v = (40*9,80665 / (0.001/1))^0.5
+	   v = (392,26600 /  0.001)^0.5
+	   v = (1000 *  392,26600)^0.5
+	   v = (392266)^0.5
+	   v = 626,311424133 m/s
+
+
+	b) El tiempo que tarda la cuerda en volver a su estado inicial segun la simulacion es 0,00325
+
+	c) 1 / 0,00325 = 307,692307692 = f es la frecuencia experimental
+		La frecuencia teorica es 626,311424133 /2 = 313,155712067
+
+
+
+
