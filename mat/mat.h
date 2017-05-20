@@ -13,7 +13,10 @@ template <class T> class mat {
     std::vector<T> data_;
     int cols_;
     int rows_;
+    void addRowTimes(int a, int b, T k);
+    void divRowTimes(int row, T k);
 
+    
   public:
     mat(int rows, int cols);
     mat(int rows, int cols, T value);
@@ -42,6 +45,7 @@ template <class T> class mat {
     mat<T> gaussElimination(mat<T> b);
     mat<T> copy();
     void fillScheme(mat<T> scheme);
+    mat<T> inverse();
 
 //Para el metodo fuertemente implicito, el de dos pasos, se resuelve asi: uj+1 = jacobi(A,(C*uj))
 
@@ -350,7 +354,8 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
 
 template<typename T>
 mat<T> mat<T>::sparseProd(mat<T> m) {
-//Halves the time for less than 5% elements different to zero.
+//Halves the time needed for calculation if less than 5%
+// of the elements are not zero.
     if (cols_ != m.rows()) {
         //ERROR. //TODO: Implement.
     }
@@ -380,3 +385,70 @@ mat<T> mat<T>::sparseProd(mat<T> m) {
 #endif
 
 
+
+
+template<typename T>
+mat<T> mat<T>::inverse() {
+    //TODO: Too slow. Better method? Inplace maybe?
+    //TODO: Warning, unstable.
+
+    mat<T> tmp = this->copy();
+
+    mat<T> inv(rows(), cols());
+    inv.id();
+
+
+    if(cols() != rows()){
+        std::cout << "Error: Trying to invert a non square matrix" << std::endl;
+        //TODO: Better error system.
+        return inv;
+    }
+
+
+    int n = cols();
+
+
+
+    for (int d = 0; d < n; ++d)
+    {
+        for (int r = 0; r < n; ++r)
+        {
+            if(r == d) continue;
+            tmp.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
+            inv.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
+
+        }
+    }
+
+
+        for (int d = 0; d < n; ++d)
+    {
+        T div = tmp.at(d,d);
+        tmp.divRowTimes(d, div);
+        inv.divRowTimes(d, div);
+    }
+
+
+            std::cout << inv << std::endl;
+
+    return inv;
+}
+
+
+template<typename T>
+void mat<T>::addRowTimes(int a, int b, T k){
+    for (int idx = 0; idx < cols(); ++idx)
+    {
+        set(a ,idx, at(a,idx) + at(b,idx)*k);
+    }
+}
+
+
+
+template<typename T>
+void mat<T>::divRowTimes(int row, T k){
+    for (int idx = 0; idx < cols(); ++idx)
+    {
+        set(row, idx, at(row,idx)/k);
+    }
+}
