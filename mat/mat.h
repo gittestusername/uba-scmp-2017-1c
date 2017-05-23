@@ -6,6 +6,8 @@
 #include <sstream>
 #include <cmath>
 
+using std::cout;
+using std::endl;
 long double pi = acos(-1.0L);
 
 template <class T> class mat {
@@ -45,7 +47,7 @@ template <class T> class mat {
     mat<T> gaussElimination(mat<T> b);
     mat<T> copy();
     void fillScheme(mat<T> scheme);
-    mat<T> inverse();
+    mat<T> inv();
 
 //Para el metodo fuertemente implicito, el de dos pasos, se resuelve asi: uj+1 = jacobi(A,(C*uj))
 
@@ -394,9 +396,8 @@ mat<T> mat<T>::sparseProd(mat<T> m) {
 
 
 template<typename T>
-mat<T> mat<T>::inverse() {
+mat<T> mat<T>::inv() {
     //TODO: Too slow. Better method? Inplace maybe?
-    //TODO: Warning, unstable.
 
     mat<T> tmp = this->copy();
 
@@ -420,12 +421,11 @@ mat<T> mat<T>::inverse() {
         for (int r = 0; r < n; ++r)
         {
             if(r == d) continue;
-            tmp.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
             inv.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
+            tmp.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
 
         }
     }
-
 
         for (int d = 0; d < n; ++d)
     {
@@ -433,9 +433,6 @@ mat<T> mat<T>::inverse() {
         tmp.divRowTimes(d, div);
         inv.divRowTimes(d, div);
     }
-
-
-            std::cout << inv << std::endl;
 
     return inv;
 }
