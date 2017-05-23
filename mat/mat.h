@@ -6,10 +6,6 @@
 #include <sstream>
 #include <cmath>
 
-using std::cout;
-using std::endl;
-long double pi = acos(-1.0L);
-
 template <class T> class mat {
   private:
     std::vector<T> data_;
