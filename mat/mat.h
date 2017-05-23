@@ -1,5 +1,6 @@
 #ifndef MAT_H
 #define MAT_H
+
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -14,7 +15,6 @@ template <class T> class mat {
     void addRowTimes(int a, int b, T k);
     void divRowTimes(int row, T k);
 
-    
   public:
     mat(int rows, int cols);
     mat(int rows, int cols, T value);
@@ -44,9 +44,6 @@ template <class T> class mat {
     mat<T> copy();
     void fillScheme(mat<T> scheme);
     mat<T> inv();
-
-//Para el metodo fuertemente implicito, el de dos pasos, se resuelve asi: uj+1 = jacobi(A,(C*uj))
-
 };
 
 template<class T> inline std::ostream& operator<<(std::ostream& os, mat<T>& m) {
@@ -139,21 +136,14 @@ template <class T> void mat<T>::id() {
                 set(i, j, 0);
             }
         }
-
     }
 }
-
-
-
 
 template <class T> void mat<T>::setCol(int col, T value) {
     for (int i = 0; i < rows(); ++i) {
         set(i, col, value);
     }
 }
-
-
-
 
 template <class T> void mat<T>::setRow(int row, T value) {
     for (int i = 0; i < cols(); ++i) {
@@ -170,7 +160,7 @@ template <class T> T mat<T>::at(int row, int col) {
 template <class T> T mat<T>::at(int row) {
     if (cols() > 1 && this->rows() > 1)
         std::cout << " ERROR: Unidimentional indexing in multidimentional matrix" << std::endl;
-    if (cols() <= row && this->rows() <= row){
+    if (cols() <= row && this->rows() <= row) {
         std::cout << " ERROR: Index out of Matrix" << std::endl;
         return 0;
     }
@@ -178,7 +168,7 @@ template <class T> T mat<T>::at(int row) {
 }
 
 template <class T> void mat<T>::set(int row, int col, T value) {
-    if(row >= rows() || col >= cols())
+    if (row >= rows() || col >= cols())
         std::cout << " ERROR: Index out of Matrix" << std::endl;
     data_[row * cols() + col] = value;
 }
@@ -199,7 +189,6 @@ mat<T> mat<T>::operator*( mat<T>& m) {
         //ERROR. //TODO: Implement.
     }
     mat<T> res(rows(), mc, 0);
-
     for (int i = 0; i < rows(); ++i) {
         for (int j = 0; j < mc; ++j) {
             for (int k = 0; k < cols(); ++k) {
@@ -207,7 +196,6 @@ mat<T> mat<T>::operator*( mat<T>& m) {
             }
         }
     }
-
     return res;
 }
 
@@ -246,7 +234,6 @@ template <class T> mat<T> mat<T>::jacobi(mat<T> b) {
     return x;
 }
 
-
 template <class T> mat<T> mat<T>::copy() {
     mat<T> res(rows(), cols(), 0);
     for (int i = 0; i < rows(); ++i) {
@@ -256,10 +243,6 @@ template <class T> mat<T> mat<T>::copy() {
     }
     return res;
 }
-
-
-
-
 
 template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
 //TODO: Custom seed, threshold and niters version overloading.
@@ -271,8 +254,6 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
     for (int i = 0; i < augA.rows(); ++i) {
         augA.set(i, augA.cols() - 1, b.at(i));
     }
-
-
     for (int i = 0; i < cols(); i++) {
         // Search for maximum in this column
         T maxElem = std::abs(augA.at(i, i));
@@ -293,16 +274,12 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
             // but we should, instead, rise
             // an exeption.
         }
-
-
-
         // Swap maximum row with current row (column by column)
         for (int k = i; k < rows() + 1; k++) {
             T tmp = augA.at(maxRow, k);
             augA.set(maxRow, k, augA.at(i, k));
             augA.set(i, k, tmp);
         }
-
         // Make all rows below this one 0 in current column
         for (int k = i + 1; k < rows(); k++) {
             T c = -augA.at(k, i) / augA.at(i, i);
@@ -315,7 +292,6 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
             }
         }
     }
-
     // Solve equation Ax=b for an upper triangular matrix A
     for (int i = cols() - 1; i >= 0; i--) {
         X.set(i, augA.at(i, cols()) / augA.at(i, i));
@@ -326,23 +302,19 @@ template <class T> mat<T> mat<T>::gaussElimination(mat<T> b) {
     return X;
 }
 
-
 template <class T> void mat<T>::fillScheme(mat<T> scheme) {
     if (  (scheme.rows() > 1) || (scheme.cols() % 2 != 1) ) {
         std::cout << "ERROR: Scheme matrix must be a one dimensional matrix of odd length" << std::endl;
         return;
     }
-
     //First we set everything to zero.
     for (int i = 0; i < rows(); ++i) {
         for (int j = 0; j < cols(); ++j) {
             set(i, j, 0);
         }
     }
-
     //Then we must fill the discretization into the matrix.
     int lenTails = (scheme.cols() - 1) / 2; //'(123)' (4) (567) = '(tail)' (mid) (tail)
-
     for (int i = 0; i < rows() ; ++i) {
         for (int j = 0; j < scheme.cols(); ++j) {
             int c = i - lenTails + j;
@@ -351,7 +323,6 @@ template <class T> void mat<T>::fillScheme(mat<T> scheme) {
             }
         }
     }
-
     //Note that the boundary conditions are not trated here.
     return;
 }
@@ -364,7 +335,6 @@ mat<T> mat<T>::sparseProd(mat<T> m) {
         //ERROR. //TODO: Implement.
     }
     mat<T> res(rows(), m.cols(), 0);
-
     std::vector< std::vector< T > > rws;
     for (int i = 0; i < rows(); i++) {
         std::vector< T > r;
@@ -374,7 +344,6 @@ mat<T> mat<T>::sparseProd(mat<T> m) {
         }
         rws.push_back(r);
     }
-
     for (int mc = 0; mc < m.cols(); ++mc) {
         for (int i = 0; i < rows(); ++i) {
             for (int jElem = 0; jElem < rws[i].size(); ++jElem) {
@@ -382,72 +351,51 @@ mat<T> mat<T>::sparseProd(mat<T> m) {
             }
         }
     }
-
     return res;
 }
-
-#endif
-
-
 
 
 template<typename T>
 mat<T> mat<T>::inv() {
     //TODO: Too slow. Better method? Inplace maybe?
-
     mat<T> tmp = this->copy();
-
     mat<T> inv(rows(), cols());
     inv.id();
-
-
-    if(cols() != rows()){
+    if (cols() != rows()) {
         std::cout << "Error: Trying to invert a non square matrix" << std::endl;
         //TODO: Better error system.
         return inv;
     }
-
-
     int n = cols();
-
-
-
-    for (int d = 0; d < n; ++d)
-    {
-        for (int r = 0; r < n; ++r)
-        {
-            if(r == d) continue;
-            inv.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
-            tmp.addRowTimes(r, d, -tmp.at(r,d)/tmp.at(d,d));
-
+    for (int d = 0; d < n; ++d) {
+        for (int r = 0; r < n; ++r) {
+            if (r == d) continue;
+            inv.addRowTimes(r, d, -tmp.at(r, d) / tmp.at(d, d));
+            tmp.addRowTimes(r, d, -tmp.at(r, d) / tmp.at(d, d));
         }
     }
-
-        for (int d = 0; d < n; ++d)
-    {
-        T div = tmp.at(d,d);
+    for (int d = 0; d < n; ++d) {
+        T div = tmp.at(d, d);
         tmp.divRowTimes(d, div);
         inv.divRowTimes(d, div);
     }
-
     return inv;
 }
 
+template<typename T>
+void mat<T>::addRowTimes(int a, int b, T k) {
+    for (int idx = 0; idx < cols(); ++idx) {
+        set(a , idx, at(a, idx) + at(b, idx)*k);
+    }
+}
 
 template<typename T>
-void mat<T>::addRowTimes(int a, int b, T k){
-    for (int idx = 0; idx < cols(); ++idx)
-    {
-        set(a ,idx, at(a,idx) + at(b,idx)*k);
+void mat<T>::divRowTimes(int row, T k) {
+    for (int idx = 0; idx < cols(); ++idx) {
+        set(row, idx, at(row, idx) / k);
     }
 }
 
 
 
-template<typename T>
-void mat<T>::divRowTimes(int row, T k){
-    for (int idx = 0; idx < cols(); ++idx)
-    {
-        set(row, idx, at(row,idx)/k);
-    }
-}
+#endif
