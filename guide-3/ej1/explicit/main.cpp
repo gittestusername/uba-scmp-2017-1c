@@ -9,15 +9,13 @@ int main() {
 
     long double m = 1.0 / 1000.0;             //kg.
     long double xMax = 1.0;                     //meters
-    long double tMax = 0.01;                     //tMin and xMin are zero.
+    long double tMax = 0.03;                     //tMin and xMin are zero.
     long double mu = m / xMax;
-    long double tension = 40.0 * 9.80665;     //Newton. Tension.
+    long double tension = 40.0*9.80665;     //Newton. Tension.
     long double pullX = 0.5;                  //meters from left.
     long double pull = 0.07;                  //pull meters.
-
-    long double dx = 0.01;
-    long double dt = 0.000001;
-
+    long double dx = 0.02;
+    long double dt = 0.0000005;
     int nX = round(xMax / dx) + 1;
     int nT = round(tMax / dt) + 1;
     //if dx = 0.5, we need the values of x = 0,
