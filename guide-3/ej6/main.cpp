@@ -33,12 +33,12 @@ int main() {
 // en x = 0, 2
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 2.0;
+    long double tMax = 1;
     long double nu = 0.1; //viscosidad
     long double rho = 1;   //densidad
     long double dx = 0.2;
     long double dy = 0.2;
-    long double dt = 0.001;
+    long double dt = 0.005;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
@@ -69,11 +69,15 @@ int main() {
         U2[i][nY - 1] = 1.0;
     }
     for (long double t = 0.0; t < tMax; t = t + dt) {
+        printMat(U0);
         printMat(V0);
 
         for (int i = 1; i < nX - 1; ++i) {
             for (int j = 1; j < nY - 1; ++j) {
-                for (int k = 0; k < 10; ++k) {
+                for (int k = 0; true; ++k) {
+                    long double oldU = U2[i][j];
+                    long double oldV = V2[i][j];
+
                     long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2 * dx);
                     long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2 * dx);
                     long double U1y = (U1[i][j + 1] - U1[i][j - 1]) / (2 * dy);
@@ -106,6 +110,13 @@ int main() {
                                                     - (1 / rho) * (al * P1y + (1 - al) * P2y) + nu * (al * V1xx + (1 - al) * V2xx + al * V1yy + (1 - al) * V2yy));
                     P2[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx * dx) / (2 * al - 2) * (-al * P1xx - al * P1yy - (1 - al) * P2yy
                                - rho * ( pow((al * U1x + (1 - al) * U2x),2) + 2 * (al * U1y + (1 - al) * U2y) * (al * V1x + (1 - al) * V2x) + pow((al * V1y + (1 - al) * V2y),2)));
+                    if(sqrt(pow(U2[i][j]-oldU,2) + pow(V2[i][j]-oldV,2)) < 0.01){
+                        break;
+                    }else if(k > 1000){
+                        cerr << "ERROR: unstable." << endl;
+                        return 0;
+                    }
+
                     //cout << "U1y, i,j,t: "  << U1y << ", " << i << ", " << j << ", " << t << endl;
 
                     // cout << "P1x " << P1x  << endl;
