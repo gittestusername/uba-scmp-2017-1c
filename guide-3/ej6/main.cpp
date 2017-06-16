@@ -17,7 +17,6 @@ void printMat(mat2 m) {
         }
         cout << endl;
     }
-    cout << endl;
 }
 
 int main() {
@@ -34,12 +33,12 @@ int main() {
 // en x = 0, 2
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 1.0;
+    long double tMax = 2.0;
     long double nu = 0.1; //viscosidad
     long double rho = 1;   //densidad
-    long double dx = 0.05;
-    long double dy = 0.05;
-    long double dt = 0.1;
+    long double dx = 0.2;
+    long double dy = 0.2;
+    long double dt = 0.001;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
@@ -70,7 +69,8 @@ int main() {
         U2[i][nY - 1] = 1.0;
     }
     for (long double t = 0.0; t < tMax; t = t + dt) {
-        printMat(U0);
+        printMat(V0);
+
         for (int i = 1; i < nX - 1; ++i) {
             for (int j = 1; j < nY - 1; ++j) {
                 for (int k = 0; k < 10; ++k) {
@@ -97,16 +97,8 @@ int main() {
                     long double P1xx = (P1[i + 1][j] - 2 * P1[i][j] + P1[i - 1][j]) / (dx * dx);
                     long double P1yy = (P1[i][j + 1] - 2 * P1[i][j] + P1[i][j - 1]) / (dy * dy);
                     long double P2yy = (P2[i][j + 1] - 2 * P2[i][j] + P2[i][j - 1]) / (dy * dy);
-                    cout << "_________________________________" << endl;
-                    cout << "U1x " << U1x  << endl;
-                    cout << "U2x " << U2x  << endl;
-                    cout << "U1y " << U1y  << endl;
-                    cout << "U2y " << U2y  << endl;
-                    cout << "U1xx " << U1xx << endl;
-                    cout << "U2xx " << U2xx << endl;
-                    cout << "U1yy " << U1yy << endl;
-                    cout << "U2yy " << U2yy << endl;
-                    cout << "P1x " << P1x  << endl;
+
+
                     //TODO: chequear despejes de ecuación 3
                     U2[i][j] = U0[i][j] + 2 * dt * (-U1[i][j] * (al * U1x  + (1 - al) * U2x ) - V1[i][j] * (al * U1y + (1 - al) * U2y)
                                                     - (1 / rho) * (al * P1x + (1 - al) * P2x) + nu * (al * U1xx + (1 - al) * U2xx + al * U1yy + (1 - al) * U2yy));
@@ -115,6 +107,20 @@ int main() {
                     P2[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx * dx) / (2 * al - 2) * (-al * P1xx - al * P1yy - (1 - al) * P2yy
                                - rho * ( pow((al * U1x + (1 - al) * U2x),2) + 2 * (al * U1y + (1 - al) * U2y) * (al * V1x + (1 - al) * V2x) + pow((al * V1y + (1 - al) * V2y),2)));
                     //cout << "U1y, i,j,t: "  << U1y << ", " << i << ", " << j << ", " << t << endl;
+
+                    // cout << "P1x " << P1x  << endl;
+                    // cout << "U1x " << U1x  << endl;
+                    // cout << "U1xx " << U1xx << endl;
+                    // cout << "U1y " << U1y  << endl;
+                    // cout << "U1yy " << U1yy << endl;
+                    // cout << "U2[i][j]" << U2[i][j]  << endl;
+                    // cout << "U2x " << U2x  << endl;
+                    // cout << "U2xx " << U2xx << endl;
+                    // cout << "U2y " << U2y  << endl;
+                    // cout << "U2yy " << U2yy << endl;
+                    // cout << "_________________________________" << endl;
+                    // cout << "i,j,k " << i << " " << j << " " << k << endl;
+
                 }
             }
         }
