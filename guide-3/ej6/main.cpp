@@ -112,9 +112,10 @@ int main() {
                                - rho * ( pow((al * U1x + (1 - al) * U2x),2) + 2 * (al * U1y + (1 - al) * U2y) * (al * V1x + (1 - al) * V2x) + pow((al * V1y + (1 - al) * V2y),2)));
                     if(sqrt(pow(U2[i][j]-oldU,2) + pow(V2[i][j]-oldV,2)) < 0.01){
                         break;
-                    }else if(k > 1000){
-                        cerr << "ERROR: unstable." << endl;
-                        return 0;
+                    }else if(k > 20){
+                        break;
+                        //cerr << "ERROR: unstable." << endl;
+                        //return 0;
                     }
 
                     //cout << "U1y, i,j,t: "  << U1y << ", " << i << ", " << j << ", " << t << endl;
