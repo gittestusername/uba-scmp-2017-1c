@@ -25,8 +25,10 @@ for iter = 1:2:(nf/20)-10
       end
   end
    iter
-quiver(xs, ys, qux, quy, 5);
-%surf(hm);
+   pause(0.3)
+
+%quiver(xs, ys, qux, quy, 5);
+surf(hm);
 title('Function plot')
 xlabel('x')
 ylabel('y')

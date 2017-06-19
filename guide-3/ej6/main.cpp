@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>  // for high_resolution_clock.
 #include <math.h>
+#include <sstream>
 
 
 using namespace std;
@@ -33,7 +34,7 @@ int main() {
 // en x = 0, 2
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 4;
+    long double tMax = 1.0;
     long double nu = 0.1; //viscosidad
     long double rho = 1;   //densidad
     long double dx = 0.2;
@@ -77,6 +78,7 @@ int main() {
         U3[i][nY - 1] = 1.0;
 
     }
+
     for (long double t = 0.0; t < tMax; t = t + dt) {
         printMat(U0);
         printMat(V0);
@@ -119,11 +121,11 @@ int main() {
                     P3[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx* dx) / (2* al - 2)* (-al* P1xx - al* P1yy - (1 - al)* P2yy
                               - rho*( pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
                     long double diff = sqrt(pow(U2[i][j] - oldU, 2) + pow(V2[i][j] - oldV, 2));
-                    if (diff < 0.05){
+                    if (diff < 0.01){
                         break;
-                    } else if (k > 1000) {
-                        cerr << "ERROR: unstable." << endl;
-                        return 0;
+                    } else if (k > 50) {
+                        //cerr << "ERROR: unstable." << endl;
+                        break;
                     }
                 }
             }
