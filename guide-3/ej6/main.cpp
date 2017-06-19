@@ -33,12 +33,12 @@ int main() {
 // en x = 0, 2
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 1;
+    long double tMax = 4;
     long double nu = 0.1; //viscosidad
     long double rho = 1;   //densidad
     long double dx = 0.2;
     long double dy = 0.2;
-    long double dt = 0.005;
+    long double dt = 0.001;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
@@ -52,6 +52,7 @@ int main() {
     mat2 U2(nX, vector<long double>(nY));
     mat2 V2(nX, vector<long double>(nY));
     mat2 P2(nX, vector<long double>(nY));
+
     for (int i = 0; i < nX; ++i) {
         fill(U0[i].begin(), U0[i].end(), 0);
         fill(V0[i].begin(), V0[i].end(), 0);
@@ -94,9 +95,9 @@ int main() {
                     long double V2x = (V2[i + 1][j] - V2[i - 1][j]) / (2 * dx);
                     long double V1y = (V1[i][j + 1] - V1[i][j - 1]) / (2 * dy);
                     long double V2y = (V2[i][j + 1] - V2[i][j - 1]) / (2 * dy);
-                    long double V1xx = (V1[i + 1][j] -    2 * V1[i][j] + V1[i - 1][j]) / (dx * dx);
+                    long double V1xx = (V1[i + 1][j] - 2 * V1[i][j] + V1[i - 1][j]) / (dx * dx);
                     long double V2xx = (V2[i + 1][j] - 2 * V2[i][j] + V2[i - 1][j]) / (dx * dx);
-                    long double V1yy = (V1[i][j + 1] - 2 * V1[i][j]    + V1[i][j - 1]) / (dy * dy);
+                    long double V1yy = (V1[i][j + 1] - 2 * V1[i][j] + V1[i][j - 1]) / (dy * dy);
                     long double V2yy = (V2[i][j + 1] - 2 * V2[i][j] + V2[i][j - 1]) / (dy * dy);
                     long double P1xx = (P1[i + 1][j] - 2 * P1[i][j] + P1[i - 1][j]) / (dx * dx);
                     long double P1yy = (P1[i][j + 1] - 2 * P1[i][j] + P1[i][j - 1]) / (dy * dy);
@@ -105,44 +106,32 @@ int main() {
 
                     //TODO: chequear despejes de ecuación 3
                     U2[i][j] = U0[i][j] + 2 * dt * (-U1[i][j] * (al * U1x  + (1 - al) * U2x ) - V1[i][j] * (al * U1y + (1 - al) * U2y)
-                                                    - (1 / rho) * (al * P1x + (1 - al) * P2x) + nu * (al * U1xx + (1 - al) * U2xx + al * U1yy + (1 - al) * U2yy));
+                                                   - (1 / rho) * (al * P1x + (1 - al) * P2x) + nu * (al * U1xx + (1 - al) * U2xx + al * U1yy + (1 - al) * U2yy));
                     V2[i][j] = V0[i][j] + 2 * dt * (-U1[i][j] * (al * V1x  + (1 - al) * V2x ) - V1[i][j] * (al * V1y + (1 - al) * V2y)
-                                                    - (1 / rho) * (al * P1y + (1 - al) * P2y) + nu * (al * V1xx + (1 - al) * V2xx + al * V1yy + (1 - al) * V2yy));
+                                                   - (1 / rho) * (al * P1y + (1 - al) * P2y) + nu * (al * V1xx + (1 - al) * V2xx + al * V1yy + (1 - al) * V2yy));
                     P2[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx * dx) / (2 * al - 2) * (-al * P1xx - al * P1yy - (1 - al) * P2yy
-                               - rho * ( pow((al * U1x + (1 - al) * U2x),2) + 2 * (al * U1y + (1 - al) * U2y) * (al * V1x + (1 - al) * V2x) + pow((al * V1y + (1 - al) * V2y),2)));
-                    if(sqrt(pow(U2[i][j]-oldU,2) + pow(V2[i][j]-oldV,2)) < 0.01){
+                              - rho * ( pow((al * U1x + (1 - al) * U2x), 2) + 2 * (al * U1y + (1 - al) * U2y) * (al * V1x + (1 - al) * V2x) + pow((al * V1y + (1 - al) * V2y), 2)));
+                    //cout << "iter" << k << endl;
+                    long double diff = sqrt(pow(U2[i][j] - oldU, 2) + pow(V2[i][j] - oldV, 2));
+                    //cout << "diff" << diff << endl;
+                    if (diff < 0.005) {
                         break;
-                    }else if(k > 20){
+                        // cout << "______________" << endl << endl << endl;
+                    } else if (k > 50) {
                         break;
-                        //cerr << "ERROR: unstable." << endl;
-                        //return 0;
+                        cerr << "ERROR: unstable." << endl;
+                        return 0;
                     }
-
-                    //cout << "U1y, i,j,t: "  << U1y << ", " << i << ", " << j << ", " << t << endl;
-
-                    // cout << "P1x " << P1x  << endl;
-                    // cout << "U1x " << U1x  << endl;
-                    // cout << "U1xx " << U1xx << endl;
-                    // cout << "U1y " << U1y  << endl;
-                    // cout << "U1yy " << U1yy << endl;
-                    // cout << "U2[i][j]" << U2[i][j]  << endl;
-                    // cout << "U2x " << U2x  << endl;
-                    // cout << "U2xx " << U2xx << endl;
-                    // cout << "U2y " << U2y  << endl;
-                    // cout << "U2yy " << U2yy << endl;
-                    // cout << "_________________________________" << endl;
-                    // cout << "i,j,k " << i << " " << j << " " << k << endl;
-
                 }
             }
         }
-        //sprintMat(V0);
-        U0.swap(U1);
+
+        U0 = U1;
         U1 = U2;
-        V0.swap(V1);
+        V0 = V1;
         V1 = V2;
-        P0.swap(P1);
-        P1 = P2;
+        U0 = U1;
+        U1 = U2;
     }
     //return de algo
 }
