@@ -44,7 +44,7 @@ int main() {
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
-    long double al = 1.0;
+    long double al = 0.5;
     //0 es tiempo n-1, 1 es tiempo n, 2 es tiempo n+1
     //3 es simplemente las matrices auxiliares para no perder datos de el tiempo 2
     mat2 U0(nX, vector<long double>(nY));
@@ -84,15 +84,15 @@ int main() {
     }
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
-        printMat(U0);
-        printMat(V0);
-        printMat(P0);
+         printMat(U0);
+         printMat(V0);
+        // printMat(P0);
 
         for (int i = 1; i < nX - 1; ++i) {
             for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
                 for (int k = 0; true; ++k) {
-                    //long double oldU = U2[i][j];
-                    //long double oldV = V2[i][j];
+                    long double oldU = U2[i][j];
+                    long double oldV = V2[i][j];
 
                     long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2* dx);
                     long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2* dx);
@@ -127,27 +127,28 @@ int main() {
                               - rho*( pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
 
 
-                    long double diff = sqrt(pow(U3[i][j] - U2[i][j], 2) + pow(V3[i][j] - V2[i][j], 2));
+                    long double diff = sqrt(pow(U3[i][j] - oldU, 2) + pow(V3[i][j] - oldV, 2));
+                    //cout << diff << endl;
                     if (diff < 0.01){
                         break;
-                    } else if (k > 5) {
+                    } else if (k > 50) {
                         //cerr << "ERROR: unstable." << endl;
                         break;
                     }
                 }
             }
         }
+
+        U2 = U3;
+        V2 = V3;
+        P2 = P3;
+
         U0 = U1;
         U1 = U2;
-        U2 = U3;
-
         V0 = V1;
         V1 = V2;
-        V2 = V3;
-
         P0 = P1;
         P1 = P2;
-        P2 = P3;
     }
 }
 
