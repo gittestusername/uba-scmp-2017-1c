@@ -91,8 +91,8 @@ int main() {
         for (int i = 1; i < nX - 1; ++i) {
             for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
                 for (int k = 0; true; ++k) {
-                    long double oldU = U2[i][j];
-                    long double oldV = V2[i][j];
+                    long double oldU = U3[i][j];
+                    long double oldV = V3[i][j];
 
                     long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2* dx);
                     long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2* dx);
@@ -129,10 +129,10 @@ int main() {
 
                     long double diff = sqrt(pow(U3[i][j] - oldU, 2) + pow(V3[i][j] - oldV, 2));
                     //cout << diff << endl;
-                    if (diff < 0.01){
+                    if (diff < 0.001 && k > 5){
                         break;
-                    } else if (k > 50) {
-                        //cerr << "ERROR: unstable." << endl;
+                    } else if (k > 150) {
+                        cerr << "ERROR: unstable." << endl;
                         break;
                     }
                 }
