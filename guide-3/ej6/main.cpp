@@ -124,15 +124,17 @@ int main() {
                     V3[i][j] = V0[i][j] + 2* dt* (-U1[i][j]* (al* V1x  + (1 - al)* V2x ) - V1[i][j]* (al* V1y + (1 - al)* V2y)
                                                    - (1 / rho)* (al* P1y + (1 - al)* P2y) + nu* (al* V1xx + (1 - al)* V2xx + al* V1yy + (1 - al)* V2yy));
                     P3[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx* dx) / (2* al - 2)* (-al* P1xx - al* P1yy - (1 - al)* P2yy
-                              - rho*( pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
+                              - rho*((-1/dt) * (U1x + V1y) + pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
 
+                    //P3[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx* dx) / (2* al - 2)* (-al* P1xx - al* P1yy - (1 - al)* P2yy
+                    //          - rho*( pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
 
                     long double diff = sqrt(pow(U3[i][j] - oldU, 2) + pow(V3[i][j] - oldV, 2));
                     //cout << diff << endl;
                     if (diff < 0.001 && k > 5){
                         break;
-                    } else if (k > 150) {
-                        cerr << "ERROR: unstable." << endl;
+                    } else if (k > 50) {
+                        //cerr << "ERROR: unstable." << endl;
                         break;
                     }
                 }
