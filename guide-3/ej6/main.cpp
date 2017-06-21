@@ -18,20 +18,21 @@ void printMat(mat2 m) {
         }
         cout << endl;
     }
+    cout << endl;
 }
 
+/* EJERCICIO 6 DE PRACTICA 3
+    Donde x, y ∈ [0; 2] y t > 0 son las variables espacial y temporal respectivamente. u(x, y, t) y v(x, y, t) son los
+    componentes x-y de la velocidad del fluido dependiente del espacio y el tiempo. Se desea resolver el Liddriven 
+    cavity problem en el cual a un recipiente (2D) que contiene un determinado fluido se le desliza su tapa
+    hacia uno de los lados, provocando cambios en el movimiento y la presi ́on del fluido. Para resolver el problema
+    se cuenta con los siguiente datos: ν = 0.1. ρ=1. Condiciones iniciales u, v, p = 0 en todos lados. Condiciones
+    de contorno u = 1 en y = 2 (la “tapa”). u, v = 0 en los demas bordes. ∂p/∂y = 0 en y = 0. p = 0 en y = 2. ∂p/∂x =0 en x = 0, 2
+*/
+
+
 int main() {
-    //Donde x, y ∈ [0; 2] y t > 0 son las variables espacial y temporal respectivamente. u(x, y, t) y v(x, y, t) son los
-// componentes x-y de la velocidad del fluido dependiente del espacio y el tiempo. Se desea resolver el Lid −
-// driven cavity problem en el cual a un recipiente (2D) que contiene un determinado fluido se le desliza su tapa
-// hacia uno de los lados, provocando cambios en el movimiento y la presi ́on del fluido. Para resolver el problema
-// se cuenta con los siguiente datos: ν = 0.1. ρ=1. Condiciones iniciales u, v, p = 0 en todos lados. Condiciones
-// ∂p
-// ∂p
-// de contorno u = 1 en y = 2 (la “tapa”). u, v = 0 en los dem ́as bordes. ∂y
-// = 0 en y = 0. p = 0 en y = 2. ∂x
-// =0
-// en x = 0, 2
+
     long double xMax = 2.0;
     long double yMax = 2.0;
     long double tMax = 1.0;
@@ -43,7 +44,9 @@ int main() {
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
-    long double al = 0.5;
+    long double al = 1.0;
+    //0 es tiempo n-1, 1 es tiempo n, 2 es tiempo n+1
+    //3 es simplemente las matrices auxiliares para no perder datos de el tiempo 2
     mat2 U0(nX, vector<long double>(nY));
     mat2 V0(nX, vector<long double>(nY));
     mat2 P0(nX, vector<long double>(nY));
@@ -71,23 +74,25 @@ int main() {
         fill(V3[i].begin(), V3[i].end(), 0);
         fill(P3[i].begin(), P3[i].end(), 0);
     }
+
+    //condicion borde u=1 en y=2
     for (int i = 0; i < nX; ++i) {
         U0[i][nY - 1] = 1.0;
         U1[i][nY - 1] = 1.0;
         U2[i][nY - 1] = 1.0;
         U3[i][nY - 1] = 1.0;
-
     }
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         printMat(U0);
         printMat(V0);
+        printMat(P0);
 
         for (int i = 1; i < nX - 1; ++i) {
-            for (int j = 1; j < nY - 1; ++j) {
+            for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
                 for (int k = 0; true; ++k) {
-                    long double oldU = U2[i][j];
-                    long double oldV = V2[i][j];
+                    //long double oldU = U2[i][j];
+                    //long double oldV = V2[i][j];
 
                     long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2* dx);
                     long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2* dx);
@@ -120,28 +125,30 @@ int main() {
                                                    - (1 / rho)* (al* P1y + (1 - al)* P2y) + nu* (al* V1xx + (1 - al)* V2xx + al* V1yy + (1 - al)* V2yy));
                     P3[i][j] = (P2[i - 1][j] / 2)  + (P2[i + 1][j] / 2) + (dx* dx) / (2* al - 2)* (-al* P1xx - al* P1yy - (1 - al)* P2yy
                               - rho*( pow((al* U1x + (1 - al)* U2x), 2) + 2* (al* U1y + (1 - al)* U2y)* (al* V1x + (1 - al)* V2x) + pow((al* V1y + (1 - al)* V2y), 2)));
-                    long double diff = sqrt(pow(U2[i][j] - oldU, 2) + pow(V2[i][j] - oldV, 2));
+
+
+                    long double diff = sqrt(pow(U3[i][j] - U2[i][j], 2) + pow(V3[i][j] - V2[i][j], 2));
                     if (diff < 0.01){
                         break;
-                    } else if (k > 50) {
+                    } else if (k > 5) {
                         //cerr << "ERROR: unstable." << endl;
                         break;
                     }
                 }
             }
         }
-        U2 = U3;
-        V2 = V3;
-        P2 = P3;
-
         U0 = U1;
         U1 = U2;
+        U2 = U3;
+
         V0 = V1;
         V1 = V2;
+        V2 = V3;
+
         P0 = P1;
         P1 = P2;
+        P2 = P3;
     }
-    //return de algo
 }
 
 
