@@ -5,12 +5,12 @@ n = size(data);
  data_cols = n(2);
  mat_rows = 11;
  mat_cols = data_cols;
- skip = 16;
+ skip = 1;
  for i=1:skip*mat_rows*2:data_rows
      U = data(i:i+mat_rows-1, 1:mat_cols);
      V = data(i+mat_rows: i+2*mat_rows-1, 1:mat_cols);
      
-   idx = 1;
+   idx = 16;
    for i=1:mat_rows
        x = i;
        for j=1:data_cols
