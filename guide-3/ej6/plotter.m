@@ -3,7 +3,7 @@ data = dlmread('out');
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
- mat_rows = 11;
+ mat_rows = 4*10 + 1;
  mat_cols = data_cols;
  skip = 1;
  for i=1:skip*mat_rows*2:data_rows
@@ -26,12 +26,12 @@ n = size(data);
                idx = idx+1;
        end
    end
-quiver(xs, ys, qux, quy, 5);  
+quiver(xs, ys, qux, quy, 1);  
 %surf(hm);
 title('Function plot');
 xlabel('x');
 ylabel('y');
- 
+ pause(0.5)
 %figure
 hold on 
 drawnow

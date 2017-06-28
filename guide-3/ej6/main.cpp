@@ -74,15 +74,27 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
   se cuenta con los siguiente datos: ν = 0.1. ρ=1. Condiciones iniciales u, v, p = 0 en todos lados. Condiciones
   de contorno u = 1 en y = 2 (la “tapa”). u, v = 0 en los demas bordes. ∂p/∂y = 0 en y = 0. p = 0 en y = 2. ∂p/∂x =0 en x = 0, 2
 */
+//TODO: Para el informe poner ley de gubstavson y andal
+//nmap para ver la red.
+
+
+//TODO para el tp: 
+//!) poner todo condiciones d eneumann, excepto en un punto dondemla presion es cero.
+//2) dejarlo 2d
+//3) no aspas
+//4) Una cola aspa. rectas.
+//Agregar una fuerza como en channel flow(12) de lorena barba. MManejaria dos ecuaciones, una con la f y otra sin la f. aplico la de la f en un segmento que varia con el angulo, y la que no tiene la f en el resto del "mapa"
+//el reactor peude ser circular o cuadrado.
 int main() {
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 2.0;
+    long double tMax = 0.01
+    ;
     long double nu = 0.1; //viscosidad
     long double rho = 1.0;  //densidad
-    long double dx = 0.2;//1.0/20.0;
-    long double dy = 0.2;//1.0/20.0;
-    long double dt = 0.01;
+    long double dx = 1.0/20.0;
+    long double dy = 1.0/20.0;
+    long double dt = 0.001;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
@@ -212,7 +224,7 @@ int main() {
                      cout << "V2y = " << fabs(oV2y - V2y) << endl;
                     */
 
-                    
+
                                         //U2[i][j] = U0[i][j] + 2.0 * dt * (-U1[i][j] * (al * U1x + (1.0 - al) * U2x ) - V1[i][j] * (al * U1y + (1.0 - al) * U2y)
                                         //                                  - (1.0 / rho) * (al * P1x + (1.0 - al) * P2x) + nu * (al * U1xx + (1.0 - al) * U2xx + al * U1yy + (1.0 - al) * U2yy));
                                         //V2[i][j] = V0[i][j] + 2.0 * dt * (-U1[i][j] * (al * V1x + (1.0 - al) * V2x ) - V1[i][j] * (al * V1y + (1.0 - al) * V2y)
