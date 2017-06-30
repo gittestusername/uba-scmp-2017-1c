@@ -22,7 +22,7 @@ long double diff(mat2 &A, mat2 &B) {
             sum += pow(B[i][j] - A[i][j], 2);
         }
     }
-    return sum;
+    return sqrt(sum);
 }
 
 void printMat(mat2 m) {
@@ -71,6 +71,10 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
         P0[c][0] = P0[c][1];
         P1[c][0] = P1[c][1];
         P2[c][0] = P2[c][1];
+
+        P0[c][nY - 1] = P0[c][nY - 2];
+        P1[c][nY - 1] = P1[c][nY - 2];
+        P2[c][nY - 1] = P2[c][nY - 2];
     }
     for (int c = 0; c < nY; ++c) {
         P0[nX - 1][c] = P0[nX - 2][c];
@@ -104,19 +108,30 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
 int main() {
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 10;
+    long double tMax = 0.05;
     long double nu = 0.1; //viscosidad
     long double rho = 1.0;  //densidad
     long double dx = 1.0 / 20.0;
     long double dy = 1.0 / 20.0;
-    long double dt = 0.001;
+    long double dt = 0.00001;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
     long double al = 0.5;
     bool upwind = false;
-    fixedPointError = 0.0001;
+    long double fixedPointError = 0.000001;
+    long double minFixedPointIters = 10;
     bool debug = true;
+    long double xc = xMax / 2;
+    long double yc = yMax / 2;
+    long double rMax = 0.8 * min(xMax, yMax) / 2.0;
+    long double rMin = 0.3 * min(xMax, yMax) / 2.0;
+    long double fanTurns = 2.0;
+    long double fanAngle = 0.0;
+
+    long double pi = atan(1) * 4;
+
+
     //0 es tiempo n-1, 1 es tiempo n, 2 es tiempo n+1
     //3 es simplemente las matrices auxiliares para no perder datos de el tiempo 2
     mat2 U0(nX, vector<long double>(nY));
@@ -144,14 +159,15 @@ int main() {
         fill(P2[i].begin(), P2[i].end(), 0.0);
     }
 
-    //condicion borde u=1 en y=2
-    for (int i = 0; i < nX; ++i) {
-        U0[i][nY - 1] = 1.0;
-        U1[i][nY - 1] = 1.0;
-        U2[i][nY - 1] = 1.0;
-    }
+    unsigned long int iter = 0;
     for (long double t = 0.0; t < tMax; t = t + dt) {
         //clearScreen();
+
+
+        long double dFanAngle = fanTurns * 2 * pi / nT; //
+        fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
+        if(fanAngle > 2*pi) fanAngle = 0;
+
         cerr << 100 * t / tMax << "%" << endl ;
         if (isnan(U1[3][3])) {
             cerr << "ERROR: nan found" << endl;
@@ -168,8 +184,12 @@ int main() {
             //U2_old = U2;
             //V2_old = V2;
             //P2_old = P2;
+
+
+
             for (int i = 1; i < nX - 1; ++i) {
                 for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
+                    iter++;
                     //printAll(U0,U1,U2,V0,V1,V2,P0,P1,P2);
                     //0 = n-1, 1 = n, 2 = n+1
                     //x = dx, y = dy, xx = d2x, yy = d2y.
@@ -266,13 +286,39 @@ int main() {
                     P2[i][j] = ((P1[i + 1][j] + P1[i - 1][j]) * dy * dy + (P1[i][j + 1] + P1[i][j - 1]) * dx * dx) * (1.0 / (2 * (dx * dx + dy * dy)));
                     P2[i][j] -= (rho * dx * dx * dy * dy / (2 * dx * dx + 2 * dy * dy)) * finalTerm;
 
+                    long double x = i * dx - xc;
+                    long double y = j * dy - yc;
+                    long double theta = atan(y / x);
+                    long double beta = theta + (pi / 2.0);
 
+                    long double r = sqrt(x * x + y * y);
+                    long double tangSpeed = dFanAngle * r;
+
+                    //long double Fu = r * (cos(theta + dTheta) - cos(theta));
+                    //long double Fv = r * (sin(theta + dTheta) - sin(theta));
+                    //cerr << "(Fu, Fv) = (" << Fu << ", " << Fv << ")" << endl;
+                    long double F = 2.0;
+                    long double Fu = F * r * cos(beta);
+                    long double Fv = F * r * sin(beta);
+                    if (i < nX / 2.0) {
+                        Fu = -Fu;
+                        Fv = -Fv;
+                    }
+                    if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
+                        U2[i][j] += Fu * dt;
+                        V2[i][j] += Fv * dt;
+                    }
                 }
             }
 
+            break; // TODO: Explicit converges in one iteration. When finished, use alpha for this.
             long double matDiff = diff(tmp, U2);
-            if (matDiff < fixedPointError && k > 5) {
-                if(debug) cerr << "out at k = "<< k << endl;
+            cerr << "iter = " << iter << endl;
+            cerr << "matDiff = " << matDiff << endl;
+
+            if ((matDiff < fixedPointError) && (k > minFixedPointIters)) {
+                cerr << "out & matDiff = " << matDiff << endl;
+                if (debug && matDiff != 0) cerr << "out at k = " << k << ", and diff = " << matDiff << endl;
                 break;
             } else if (k > 4000) {
                 cerr << "ERROR: unstable." << endl;
