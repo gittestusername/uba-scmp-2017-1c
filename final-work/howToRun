@@ -1,0 +1,8 @@
+compile:
+	mpicxx mainAspas.cpp -std=c++11 -o2 -o mainAspas
+run:
+	mpirun -np 5 ./mainAspas
+run network:
+	mpirun -np 5 -H ./mainAspas
+				 -hosts ip1,ip2,ip3...				(separadon con comas sin espacios) 
+				-<otraopcion> archivoconips
