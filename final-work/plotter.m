@@ -1,5 +1,5 @@
 clear all;
-data = dlmread('out');
+data = dlmread('outDBG');
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
@@ -31,7 +31,7 @@ n = size(data);
 title('Function plot');
 xlabel('x');
 ylabel('y');
-%pause(2)
+%pause(0.5)
 %figure
 hold on 
 drawnow
