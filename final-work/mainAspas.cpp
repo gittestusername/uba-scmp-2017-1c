@@ -3,7 +3,6 @@
 #include <chrono> // for high_resolution_clock.
 #include <math.h>
 #include <sstream>
-#include "mpi.h"
 
 using namespace std;
 
@@ -106,7 +105,7 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
 //4) Una sola aspa. recta.
 //Agregar una fuerza como en channel flow(12) de lorena barba. Manejaria dos ecuaciones, una con la f y otra sin la f. aplico la de la f en un segmento que varia con el angulo, y la que no tiene la f en el resto del "mapa"
 //el reactor peude ser circular o cuadrado.
-int main(int argc, char *argv[]) {
+int main() {
     long double xMax = 2.0;
     long double yMax = 2.0;
     long double tMax = 0.05;
@@ -128,6 +127,7 @@ int main(int argc, char *argv[]) {
     long double rMax = 0.8 * min(xMax, yMax) / 2.0;
     long double rMin = 0.3 * min(xMax, yMax) / 2.0;
     long double fanTurns = 2.0;
+    long double fanAngle = 0.0;
 
     long double pi = atan(1) * 4;
 
@@ -159,207 +159,179 @@ int main(int argc, char *argv[]) {
         fill(P2[i].begin(), P2[i].end(), 0.0);
     }
 
+    unsigned long int iter = 0;
+    for (long double t = 0.0; t < tMax; t = t + dt) {
+        //clearScreen();
 
-    //**MPI_INIT**//
-    char idstr[32];
-    int BUFSIZE  = 128;
-    char buff[BUFSIZE];
-    int numprocs;
-    int myid;
-    int i;
-    MPI_Status stat;
-    /* MPI programs start with MPI_Init; all 'N' processes exist thereafter */
-    MPI_Init(&argc, &argv);
-    /* find out how big the SPMD world is */
-    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-    /* and this processes' rank is */
-    MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 
-    /* At this point, all programs are running equivalently, the rank
-       distinguishes the roles of the programs in the SPMD model, with
-       rank 0 often used specially... */
-    if (myid == 0) {
-        cout << "hello im master id 0" << endl;
-    }else{
-        cout << "hello im " << myid << endl;
-    }
+        long double dFanAngle = fanTurns * 2 * pi / nT; //
+        fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
+        if(fanAngle > 2*pi) fanAngle = 0;
 
-    return 0;
-        //**MPI_INIT_END**//
-        unsigned long int iter = 0;
-        long double fanAngle = 0.0;
+        //cerr << 100 * t / tMax << "%" << endl ;
+        if (isnan(U1[3][3])) {
+            cerr << "ERROR: nan found" << endl;
+            exit(EXIT_FAILURE);
+        }
+        printMat(U0);
+        printMat(V0);
+        //printMat(P0);
+        mat2 tmp = U1;
+        for (int k = 0; true; ++k) {
+            tmp = U2;
+            setPBorders(P0, P1, P2, nX, nY);
 
-        for (long double t = 0.0; t < tMax; t = t + dt) {
-            //clearScreen();
-
-            long double dFanAngle = fanTurns * 2 * pi / nT; //
-            fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
-            if (fanAngle > 2 * pi) fanAngle = 0;
-
-            cerr << 100 * t / tMax << "%" << endl ;
-            if (isnan(U1[3][3])) {
-                cerr << "ERROR: nan found" << endl;
-                exit(EXIT_FAILURE);
-            }
-            printMat(U0);
-            printMat(V0);
-            //printMat(P0);
-            mat2 tmp = U1;
-            for (int k = 0; true; ++k) {
-                tmp = U2;
-                setPBorders(P0, P1, P2, nX, nY);
-
-                //U2_old = U2;
-                //V2_old = V2;
-                //P2_old = P2;
+            //U2_old = U2;
+            //V2_old = V2;
+            //P2_old = P2;
 
 
 
-                for (int i = 1; i < nX - 1; ++i) {
-                    for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
-                        iter++;
-                        //printAll(U0,U1,U2,V0,V1,V2,P0,P1,P2);
-                        //0 = n-1, 1 = n, 2 = n+1
-                        //x = dx, y = dy, xx = d2x, yy = d2y.
-                        long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2.0 * dx);
-                        long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2.0 * dx);
-                        long double U1y = (U1[i][j + 1] - U1[i][j - 1]) / (2.0 * dy);
-                        long double U2y = (U2[i][j + 1] - U2[i][j - 1]) / (2.0 * dy);
-                        long double U1xx = (U1[i + 1][j] - 2.0 * U1[i][j] + U1[i - 1][j]) / (dx * dx);
-                        long double U2xx = (U2[i + 1][j] - 2.0 * U2[i][j] + U2[i - 1][j]) / (dx * dx);
-                        long double U1yy = (U1[i][j + 1] - 2.0 * U1[i][j] + U1[i][j - 1]) / (dy * dy);
-                        long double U2yy = (U2[i][j + 1] - 2.0 * U2[i][j] + U2[i][j - 1]) / (dy * dy);
-                        long double P1x = (P1[i + 1][j] - P1[i - 1][j]) / (2.0 * dx);
-                        long double P2x = (P2[i + 1][j] - P2[i - 1][j]) / (2.0 * dx);
-                        long double P1y = (P1[i][j + 1] - P1[i][j - 1]) / (2.0 * dy);
-                        long double P2y = (P2[i][j + 1] - P2[i][j - 1]) / (2.0 * dy);
-                        long double V1x = (V1[i + 1][j] - V1[i - 1][j]) / (2.0 * dx);
-                        long double V2x = (V2[i + 1][j] - V2[i - 1][j]) / (2.0 * dx);
-                        long double V1y = (V1[i][j + 1] - V1[i][j - 1]) / (2.0 * dy);
-                        long double V2y = (V2[i][j + 1] - V2[i][j - 1]) / (2.0 * dy);
-                        long double V1xx = (V1[i + 1][j] - 2.0 * V1[i][j] + V1[i - 1][j]) / (dx * dx);
-                        long double V2xx = (V2[i + 1][j] - 2.0 * V2[i][j] + V2[i - 1][j]) / (dx * dx);
-                        long double V1yy = (V1[i][j + 1] - 2.0 * V1[i][j] + V1[i][j - 1]) / (dy * dy);
-                        long double V2yy = (V2[i][j + 1] - 2.0 * V2[i][j] + V2[i][j - 1]) / (dy * dy);
-                        long double P1xx = (P1[i + 1][j] - 2.0 * P1[i][j] + P1[i - 1][j]) / (dx * dx);
-                        long double P1yy = (P1[i][j + 1] - 2.0 * P1[i][j] + P1[i][j - 1]) / (dy * dy);
-                        long double P2yy = (P2[i][j + 1] - 2.0 * P2[i][j] + P2[i][j - 1]) / (dy * dy);
+            for (int i = 1; i < nX - 1; ++i) {
+                for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
+                    iter++;
+                    //printAll(U0,U1,U2,V0,V1,V2,P0,P1,P2);
+                    //0 = n-1, 1 = n, 2 = n+1
+                    //x = dx, y = dy, xx = d2x, yy = d2y.
+                    long double U1x = (U1[i + 1][j] - U1[i - 1][j]) / (2.0 * dx);
+                    long double U2x = (U2[i + 1][j] - U2[i - 1][j]) / (2.0 * dx);
+                    long double U1y = (U1[i][j + 1] - U1[i][j - 1]) / (2.0 * dy);
+                    long double U2y = (U2[i][j + 1] - U2[i][j - 1]) / (2.0 * dy);
+                    long double U1xx = (U1[i + 1][j] - 2.0 * U1[i][j] + U1[i - 1][j]) / (dx * dx);
+                    long double U2xx = (U2[i + 1][j] - 2.0 * U2[i][j] + U2[i - 1][j]) / (dx * dx);
+                    long double U1yy = (U1[i][j + 1] - 2.0 * U1[i][j] + U1[i][j - 1]) / (dy * dy);
+                    long double U2yy = (U2[i][j + 1] - 2.0 * U2[i][j] + U2[i][j - 1]) / (dy * dy);
+                    long double P1x = (P1[i + 1][j] - P1[i - 1][j]) / (2.0 * dx);
+                    long double P2x = (P2[i + 1][j] - P2[i - 1][j]) / (2.0 * dx);
+                    long double P1y = (P1[i][j + 1] - P1[i][j - 1]) / (2.0 * dy);
+                    long double P2y = (P2[i][j + 1] - P2[i][j - 1]) / (2.0 * dy);
+                    long double V1x = (V1[i + 1][j] - V1[i - 1][j]) / (2.0 * dx);
+                    long double V2x = (V2[i + 1][j] - V2[i - 1][j]) / (2.0 * dx);
+                    long double V1y = (V1[i][j + 1] - V1[i][j - 1]) / (2.0 * dy);
+                    long double V2y = (V2[i][j + 1] - V2[i][j - 1]) / (2.0 * dy);
+                    long double V1xx = (V1[i + 1][j] - 2.0 * V1[i][j] + V1[i - 1][j]) / (dx * dx);
+                    long double V2xx = (V2[i + 1][j] - 2.0 * V2[i][j] + V2[i - 1][j]) / (dx * dx);
+                    long double V1yy = (V1[i][j + 1] - 2.0 * V1[i][j] + V1[i][j - 1]) / (dy * dy);
+                    long double V2yy = (V2[i][j + 1] - 2.0 * V2[i][j] + V2[i][j - 1]) / (dy * dy);
+                    long double P1xx = (P1[i + 1][j] - 2.0 * P1[i][j] + P1[i - 1][j]) / (dx * dx);
+                    long double P1yy = (P1[i][j + 1] - 2.0 * P1[i][j] + P1[i][j - 1]) / (dy * dy);
+                    long double P2yy = (P2[i][j + 1] - 2.0 * P2[i][j] + P2[i][j - 1]) / (dy * dy);
 
-                        //TODO: U0, V0, P0, are not used if we use forward scheme in time.
-                        /*long double oU1x = U1x;
-                        long double oU2x = U2x;
-                        long double oV1x = V1x;
-                        long double oV2x = V2x;
-                        long double oU1y = U1y;
-                        long double oU2y = U2y;
-                        long double oV1y = V1y;
-                        long double oV2y = V2y;*/
+                    //TODO: U0, V0, P0, are not used if we use forward scheme in time.
+                    /*long double oU1x = U1x;
+                    long double oU2x = U2x;
+                    long double oV1x = V1x;
+                    long double oV2x = V2x;
+                    long double oU1y = U1y;
+                    long double oU2y = U2y;
+                    long double oV1y = V1y;
+                    long double oV2y = V2y;*/
 
-                        if (upwind) {
-                            if (U1[i][j] > 0) {
-                                U1x = (U1[i + 1][j] - U1[i][j]) / dt;
-                                V1x = (V1[i + 1][j] - V1[i][j]) / dt;
-                                U2x = (U2[i + 1][j] - U2[i][j]) / dt;
-                                V2x = (V2[i + 1][j] - V2[i][j]) / dt;
-                            } else {
-                                U1x = (U1[i][j] - U1[i - 1][j]) / dt;
-                                V1x = (V1[i][j] - V1[i - 1][j]) / dt;
-                                U2x = (U2[i][j] - U2[i - 1][j]) / dt;
-                                V2x = (V2[i][j] - V2[i - 1][j]) / dt;
-                            }
-                            if (V1[i][j] > 0) {
-                                U1y = (V1[i][j + 1] - V1[i][j]) / dt;
-                                V1y = (V1[i][j + 1] - V1[i][j]) / dt;
-                                U2y = (V2[i][j + 1] - V2[i][j]) / dt;
-                                V2y = (V2[i][j + 1] - V2[i][j]) / dt;
-                            } else {
-                                U1y = (V1[i][j] - V1[i][j - 1]) / dt;
-                                V1y = (V1[i][j] - V1[i][j - 1]) / dt;
-                                U2y = (V2[i][j] - V2[i][j - 1]) / dt;
-                                V2y = (V2[i][j] - V2[i][j - 1]) / dt;
-                            }
+                    if (upwind) {
+                        if (U1[i][j] > 0) {
+                            U1x = (U1[i + 1][j] - U1[i][j]) / dt;
+                            V1x = (V1[i + 1][j] - V1[i][j]) / dt;
+                            U2x = (U2[i + 1][j] - U2[i][j]) / dt;
+                            V2x = (V2[i + 1][j] - V2[i][j]) / dt;
+                        } else {
+                            U1x = (U1[i][j] - U1[i - 1][j]) / dt;
+                            V1x = (V1[i][j] - V1[i - 1][j]) / dt;
+                            U2x = (U2[i][j] - U2[i - 1][j]) / dt;
+                            V2x = (V2[i][j] - V2[i - 1][j]) / dt;
                         }
-
-                        /* cout << "k = " << k << endl;
-                         cout << "U1x = " << fabs(oU1x - U1x) << endl;
-                         cout << "U2x = " << fabs(oU2x - U2x) << endl;
-                         cout << "V1x = " << fabs(oV1x - V1x) << endl;
-                         cout << "V2x = " << fabs(oV2x - V2x) << endl;
-                         cout << "U1y = " << fabs(oU1y - U1y) << endl;
-                         cout << "U2y = " << fabs(oU2y - U2y) << endl;
-                         cout << "V1y = " << fabs(oV1y - V1y) << endl;
-                         cout << "V2y = " << fabs(oV2y - V2y) << endl;
-                        */
-
-
-                        //U2[i][j] = U0[i][j] + 2.0 * dt * (-U1[i][j] * (al * U1x + (1.0 - al) * U2x ) - V1[i][j] * (al * U1y + (1.0 - al) * U2y)
-                        //                                  - (1.0 / rho) * (al * P1x + (1.0 - al) * P2x) + nu * (al * U1xx + (1.0 - al) * U2xx + al * U1yy + (1.0 - al) * U2yy));
-                        //V2[i][j] = V0[i][j] + 2.0 * dt * (-U1[i][j] * (al * V1x + (1.0 - al) * V2x ) - V1[i][j] * (al * V1y + (1.0 - al) * V2y)
-                        //                                  - (1.0 / rho) * (al * P1y + (1.0 - al) * P2y) + nu * (al * V1xx + (1.0 - al) * V2xx + al * V1yy + (1.0 - al) * V2yy));
-                        //P2[i][j] = (P2[i - 1][j] / 2.0) + (P2[i + 1][j] / 2.0) + (dx * dx) / (2.0 * al - 2.0) * (-al * P1xx - al * P1yy - (1.0 - al) * P2yy
-                        //           - rho * ( pow((al * U1x + (1 - al) * U2x), 2) + 2.0 * (al * U1y + (1.0 - al) * U2y) * (al * V1x + (1.0 - al) * V2x) + pow((al * V1y + (1.0 - al) * V2y), 2)));
-
-
-                        //new discretization:
-                        //other discretization (adv diff for time back for spatial)
-                        U2[i][j] = U1[i][j] - U1[i][j] * (dt / dx) * (U1[i][j] - U1[i - 1][j]) - V1[i][j] * (dt / dy) * (U1[i][j] - U1[i][j - 1])
-                                   - (dt / (rho * 2 * dx)) * (P1[i + 1][j] - P1[i - 1][j])
-                                   + nu * ((dt / (dx * dx)) * (U1[i + 1][j] - 2 * U1[i][j] + U1[i - 1][j]) + (dt / (dy * dy)) * (U1[i][j + 1] - 2 * U1[i][j] + U1[i][j - 1]));
-
-                        V2[i][j] = V1[i][j] - U1[i][j] * (dt / dx) * (V1[i][j] - V1[i - 1][j]) - V1[i][j] * (dt / dy) * (V1[i][j] - V1[i][j - 1])
-                                   - (dt / (rho * 2 * dy)) * (P1[i][j + 1] - P1[i][j - 1])
-                                   + nu * ((dt / (dx * dx)) * (V1[i + 1][j] - 2 * V1[i][j] + V1[i - 1][j]) + (dt / (dy * dy)) * (V1[i][j + 1] - 2 * V1[i][j] + V1[i][j - 1]));
-
-                        long double finalTerm = (1 / dt) * (U1x + V1y) - U1x * U1x - 2 * U1y * V1x - V1y * V1y;
-                        P2[i][j] = ((P1[i + 1][j] + P1[i - 1][j]) * dy * dy + (P1[i][j + 1] + P1[i][j - 1]) * dx * dx) * (1.0 / (2 * (dx * dx + dy * dy)));
-                        P2[i][j] -= (rho * dx * dx * dy * dy / (2 * dx * dx + 2 * dy * dy)) * finalTerm;
-
-                        long double x = i * dx - xc;
-                        long double y = j * dy - yc;
-                        long double theta = atan(y / x);
-                        long double beta = theta + (pi / 2.0);
-
-                        long double r = sqrt(x * x + y * y);
-                        long double tangSpeed = dFanAngle * r;
-
-                        //long double Fu = r * (cos(theta + dTheta) - cos(theta));
-                        //long double Fv = r * (sin(theta + dTheta) - sin(theta));
-                        //cerr << "(Fu, Fv) = (" << Fu << ", " << Fv << ")" << endl;
-                        long double F = 2.0;
-                        long double Fu = F * r * cos(beta);
-                        long double Fv = F * r * sin(beta);
-                        if (i < nX / 2.0) {
-                            Fu = -Fu;
-                            Fv = -Fv;
-                        }
-                        if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
-                            U2[i][j] += Fu * dt;
-                            V2[i][j] += Fv * dt;
+                        if (V1[i][j] > 0) {
+                            U1y = (V1[i][j + 1] - V1[i][j]) / dt;
+                            V1y = (V1[i][j + 1] - V1[i][j]) / dt;
+                            U2y = (V2[i][j + 1] - V2[i][j]) / dt;
+                            V2y = (V2[i][j + 1] - V2[i][j]) / dt;
+                        } else {
+                            U1y = (V1[i][j] - V1[i][j - 1]) / dt;
+                            V1y = (V1[i][j] - V1[i][j - 1]) / dt;
+                            U2y = (V2[i][j] - V2[i][j - 1]) / dt;
+                            V2y = (V2[i][j] - V2[i][j - 1]) / dt;
                         }
                     }
+
+                    /* cout << "k = " << k << endl;
+                     cout << "U1x = " << fabs(oU1x - U1x) << endl;
+                     cout << "U2x = " << fabs(oU2x - U2x) << endl;
+                     cout << "V1x = " << fabs(oV1x - V1x) << endl;
+                     cout << "V2x = " << fabs(oV2x - V2x) << endl;
+                     cout << "U1y = " << fabs(oU1y - U1y) << endl;
+                     cout << "U2y = " << fabs(oU2y - U2y) << endl;
+                     cout << "V1y = " << fabs(oV1y - V1y) << endl;
+                     cout << "V2y = " << fabs(oV2y - V2y) << endl;
+                    */
+
+
+                    //U2[i][j] = U0[i][j] + 2.0 * dt * (-U1[i][j] * (al * U1x + (1.0 - al) * U2x ) - V1[i][j] * (al * U1y + (1.0 - al) * U2y)
+                    //                                  - (1.0 / rho) * (al * P1x + (1.0 - al) * P2x) + nu * (al * U1xx + (1.0 - al) * U2xx + al * U1yy + (1.0 - al) * U2yy));
+                    //V2[i][j] = V0[i][j] + 2.0 * dt * (-U1[i][j] * (al * V1x + (1.0 - al) * V2x ) - V1[i][j] * (al * V1y + (1.0 - al) * V2y)
+                    //                                  - (1.0 / rho) * (al * P1y + (1.0 - al) * P2y) + nu * (al * V1xx + (1.0 - al) * V2xx + al * V1yy + (1.0 - al) * V2yy));
+                    //P2[i][j] = (P2[i - 1][j] / 2.0) + (P2[i + 1][j] / 2.0) + (dx * dx) / (2.0 * al - 2.0) * (-al * P1xx - al * P1yy - (1.0 - al) * P2yy
+                    //           - rho * ( pow((al * U1x + (1 - al) * U2x), 2) + 2.0 * (al * U1y + (1.0 - al) * U2y) * (al * V1x + (1.0 - al) * V2x) + pow((al * V1y + (1.0 - al) * V2y), 2)));
+
+
+                    //new discretization:
+                    //other discretization (adv diff for time back for spatial)
+                    U2[i][j] = U1[i][j] - U1[i][j] * (dt / dx) * (U1[i][j] - U1[i - 1][j]) - V1[i][j] * (dt / dy) * (U1[i][j] - U1[i][j - 1])
+                               - (dt / (rho * 2 * dx)) * (P1[i + 1][j] - P1[i - 1][j])
+                               + nu * ((dt / (dx * dx)) * (U1[i + 1][j] - 2 * U1[i][j] + U1[i - 1][j]) + (dt / (dy * dy)) * (U1[i][j + 1] - 2 * U1[i][j] + U1[i][j - 1]));
+
+                    V2[i][j] = V1[i][j] - U1[i][j] * (dt / dx) * (V1[i][j] - V1[i - 1][j]) - V1[i][j] * (dt / dy) * (V1[i][j] - V1[i][j - 1])
+                               - (dt / (rho * 2 * dy)) * (P1[i][j + 1] - P1[i][j - 1])
+                               + nu * ((dt / (dx * dx)) * (V1[i + 1][j] - 2 * V1[i][j] + V1[i - 1][j]) + (dt / (dy * dy)) * (V1[i][j + 1] - 2 * V1[i][j] + V1[i][j - 1]));
+
+                    long double finalTerm = (1 / dt) * (U1x + V1y) - U1x * U1x - 2 * U1y * V1x - V1y * V1y;
+                    P2[i][j] = ((P1[i + 1][j] + P1[i - 1][j]) * dy * dy + (P1[i][j + 1] + P1[i][j - 1]) * dx * dx) * (1.0 / (2 * (dx * dx + dy * dy)));
+                    P2[i][j] -= (rho * dx * dx * dy * dy / (2 * dx * dx + 2 * dy * dy)) * finalTerm;
+
+                    long double x = i * dx - xc;
+                    long double y = j * dy - yc;
+                    long double theta = atan(y / x);
+                    long double beta = theta + (pi / 2.0);
+
+                    long double r = sqrt(x * x + y * y);
+                    long double tangSpeed = dFanAngle * r;
+
+                    //long double Fu = r * (cos(theta + dTheta) - cos(theta));
+                    //long double Fv = r * (sin(theta + dTheta) - sin(theta));
+                    //cerr << "(Fu, Fv) = (" << Fu << ", " << Fv << ")" << endl;
+                    long double F = 2.0;
+                    long double Fu = F * r * cos(beta);
+                    long double Fv = F * r * sin(beta);
+                    if (i < nX / 2.0) {
+                        Fu = -Fu;
+                        Fv = -Fv;
+                    }
+                    if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
+                        U2[i][j] += Fu * dt;
+                        V2[i][j] += Fv * dt;
+                    }
                 }
-
-                break; // TODO: Explicit converges in one iteration. When finished, use alpha for this.
-                long double matDiff = diff(tmp, U2);
-                cerr << "iter = " << iter << endl;
-                cerr << "matDiff = " << matDiff << endl;
-
-                if ((matDiff < fixedPointError) && (k > minFixedPointIters)) {
-                    cerr << "out & matDiff = " << matDiff << endl;
-                    if (debug && matDiff != 0) cerr << "out at k = " << k << ", and diff = " << matDiff << endl;
-                    break;
-                } else if (k > 4000) {
-                    cerr << "ERROR: unstable." << endl;
-                    exit(EXIT_FAILURE);
-                }
-
             }
 
-            U0 = U1;
-            U1 = U2;
-            V0 = V1;
-            V1 = V2;
-            P0 = P1;
-            P1 = P2;
+            break; // TODO: Explicit converges in one iteration. When finished, use alpha for this.
+            long double matDiff = diff(tmp, U2);
+            cerr << "iter = " << iter << endl;
+            cerr << "matDiff = " << matDiff << endl;
+
+            if ((matDiff < fixedPointError) && (k > minFixedPointIters)) {
+                cerr << "out & matDiff = " << matDiff << endl;
+                if (debug && matDiff != 0) cerr << "out at k = " << k << ", and diff = " << matDiff << endl;
+                break;
+            } else if (k > 4000) {
+                cerr << "ERROR: unstable." << endl;
+                exit(EXIT_FAILURE);
+            }
+
         }
+
+        U0 = U1;
+        U1 = U2;
+        V0 = V1;
+        V1 = V2;
+        P0 = P1;
+        P1 = P2;
     }
+}
