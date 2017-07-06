@@ -14,3 +14,12 @@ run network:
 
 to get my ip: 
 				ip route get 8.8.8.8 | awk '{print $NF; exit}'
+
+
+
+tools:
+
+./listar_host.sh 10.2.6.1-25 hostlist.txt
+nmap -sP 10.2.6.1-25 > salida.txt
+python host_up.py salida.txt hostlist.txt 
+
