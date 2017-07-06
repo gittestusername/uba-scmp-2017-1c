@@ -1,12 +1,12 @@
 
 long double xMax = 2.0;
 long double yMax = 2.0;
-long double tMax = 0.1;
+long double tMax = 0.05;
 long double nu = 0.1; //viscosidad
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
 long double dy = (1.0 / 20.0);
-long double dt = 0.00001;
+long double dt = 0.000001;
 int nX = round(xMax / dx) + 1;
 int nY = round(yMax / dy) + 1;
 int nT = round(tMax / dt) + 1;
