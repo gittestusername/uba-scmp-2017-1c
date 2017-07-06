@@ -6,3 +6,11 @@ run network:
 	mpirun -np 5 -H ./mainAspas
 				 -hosts ip1,ip2,ip3...				(separadon con comas sin espacios) 
 				-<otraopcion> archivoconips
+
+
+
+
+
+
+to get my ip: 
+				ip route get 8.8.8.8 | awk '{print $NF; exit}'
