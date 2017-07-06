@@ -10,11 +10,9 @@
 #include "mat2.h"
 #include "parameters.h"
 
-
 #define TAG 0
 
 using namespace std;
-
 
 long double diff(mat2 A, mat2 B) {
     long double sum = 0;
@@ -26,10 +24,6 @@ long double diff(mat2 A, mat2 B) {
     return sqrt(sum);
 }
 
-
-
-
-
 void extractRows(mat2 &A, mat2 &B, int start, int end) {
     int cantRows = end - start;
     for (int i = 0; i < cantRows; ++i) {
@@ -40,8 +34,6 @@ void extractRows(mat2 &A, mat2 &B, int start, int end) {
     }
 }
 
-
-
 void copyRowsTo(mat2 &A, mat2 &B, int start) {
     for (int i = 0; i < B.rows(); ++i) {
         for (int j = 0; j < B.cols(); ++j) {
@@ -50,7 +42,6 @@ void copyRowsTo(mat2 &A, mat2 &B, int start) {
         }
     }
 }
-
 
 void setPBorders(int myId, int cantProcs, mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
     for (int r = 0; r < nX; ++r) {
@@ -80,7 +71,6 @@ void setPBorders(int myId, int cantProcs, mat2 &P0, mat2 &P1, mat2 &P2, int nX, 
         }
     }
 }
-
 
 void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 &U2, mat2 &V0, mat2 &V1, mat2 &V2, mat2 &P0, mat2 &P1, mat2 &P2, long double fanAngle, vector<pair<int, int>> rpt) {
     int startRow = rpt[myId].first;
@@ -201,7 +191,6 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
 
         //sharing borders. Borders are start+1 and end-1
-
         if (myId != 0) {
             extractRows(U1ShareU, U1, 1, 2);
             MPI_Send(U1ShareU.data, U1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD);
@@ -233,7 +222,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
             MPI_Send(P1ShareD.data, P1ShareD.cols(), MPI_LONG_DOUBLE, myId + 1, TAG, MPI_COMM_WORLD);
         }
 
-        MPI_Barrier(MPI_COMM_WORLD);
+        //MPI_Barrier(MPI_COMM_WORLD);
 
         //Get borders from neighbors, borders are start and end.
         long double buff[500];
@@ -277,7 +266,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
         //si n%algo=0, enviar a rank 0 para imprimir.
         if (step % stepsUntilPrint == 0) {
-            MPI_Barrier(MPI_COMM_WORLD);
+            //MPI_Barrier(MPI_COMM_WORLD);
 
 
             if (myId == 0) {

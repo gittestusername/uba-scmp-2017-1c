@@ -106,20 +106,21 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
 //Agregar una fuerza como en channel flow(12) de lorena barba. Manejaria dos ecuaciones, una con la f y otra sin la f. aplico la de la f en un segmento que varia con el angulo, y la que no tiene la f en el resto del "mapa"
 //el reactor peude ser circular o cuadrado.
 int main() {
+
     long double xMax = 2.0;
     long double yMax = 2.0;
-    long double tMax = 0.05;
+    long double tMax = 0.1;
     long double nu = 0.1; //viscosidad
     long double rho = 1.0;  //densidad
-    long double dx = 1.0 / 20.0;
-    long double dy = 1.0 / 20.0;
+    long double dx = (1.0 / 20.0);
+    long double dy = (1.0 / 20.0);
     long double dt = 0.00001;
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
     long double al = 0.5;
     bool upwind = false;
-    long double fixedPointError = 0.000001;
+    long double fixedPointError = 0.00001;
     long double minFixedPointIters = 10;
     bool debug = true;
     long double xc = xMax / 2;
@@ -130,7 +131,7 @@ int main() {
     long double fanAngle = 0.0;
 
     long double pi = atan(1) * 4;
-
+    unsigned int stepsUntilPrint = 5000;
 
     //0 es tiempo n-1, 1 es tiempo n, 2 es tiempo n+1
     //3 es simplemente las matrices auxiliares para no perder datos de el tiempo 2
@@ -166,15 +167,18 @@ int main() {
 
         long double dFanAngle = fanTurns * 2 * pi / nT; //
         fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
-        if(fanAngle > 2*pi) fanAngle = 0;
+        if (fanAngle > 2 * pi) fanAngle = 0;
 
         //cerr << 100 * t / tMax << "%" << endl ;
         if (isnan(U1[3][3])) {
             cerr << "ERROR: nan found" << endl;
             exit(EXIT_FAILURE);
         }
-        printMat(U0);
-        printMat(V0);
+        if (iter % stepsUntilPrint == 0) {
+            printMat(U0);
+            printMat(V0);
+        }
+
         //printMat(P0);
         mat2 tmp = U1;
         for (int k = 0; true; ++k) {
@@ -186,10 +190,10 @@ int main() {
             //P2_old = P2;
 
 
+            iter++;
 
             for (int i = 1; i < nX - 1; ++i) {
                 for (int j = 1; j < nY - 1; ++j) { //las condiciones borde en Y=2 se respetan aca
-                    iter++;
                     //printAll(U0,U1,U2,V0,V1,V2,P0,P1,P2);
                     //0 = n-1, 1 = n, 2 = n+1
                     //x = dx, y = dy, xx = d2x, yy = d2y.
