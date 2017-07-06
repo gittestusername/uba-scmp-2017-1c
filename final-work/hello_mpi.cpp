@@ -95,7 +95,6 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
 
         if (fanAngle > 2 * pi) fanAngle = 0;
-        //cerr << "P" << myId << " " <<  100 * t / tMax << "%" << endl ;
         if (isnan(U1.at(3, 3))) {
             cerr << "ERROR: nan found" << endl;
             exit(EXIT_FAILURE);
@@ -168,7 +167,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                         Fu = -Fu;
                         Fv = -Fv;
                     }
-                    if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
+                    if ( fabs(tan(theta) - tan(fanAngle)) < 0.1  && r > rMin && r < rMax) {
                         U2.add(i, j, Fu * dt);
                         V2.add(i, j, Fv * dt);
                     }
@@ -287,7 +286,6 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                 }
                 U.print();
                 V.print();
-
             } else {
                 MPI_Send(U1.data, U1.rows()*U1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
                 MPI_Send(V1.data, V1.rows()*V1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
@@ -317,7 +315,7 @@ vector<pair<int, int>> calcRowsPerThread(int rows, int cantProcs) {
         }
 
         if (i == cantProcs - 1) end--;
-        cerr << start << ", " << end << endl;
+
         pair<int, int> rows = make_pair (start, end);
         threadToRows.push_back(rows);
     }
@@ -346,7 +344,6 @@ int main(int argc, char *argv[]) {
        rank 0 often used specially... */
 
 
-    cerr << "nX, nY = " << nX << ", " << nY << endl;
     unsigned long int iter = 0;
     long double fanAngle = 0.0;
     vector<pair<int, int>> rpt = calcRowsPerThread(nX, cantProcs);
@@ -451,7 +448,6 @@ int main(int argc, char *argv[]) {
 
         int cantRows = endRow - startRow;
 
-        cerr << "p " << myId << ", cantRows " << cantRows << endl;
 
         mat2 U0l(cantRows, nY, 0);
         MPI_Recv(U0l.data, nY * (endRow - startRow), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD, &stat);
