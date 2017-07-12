@@ -1,11 +1,11 @@
 clear all;
-data = dlmread('outDBG');
+data = dlmread('out');
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
  mat_rows = 4*10 + 1;
  mat_cols = data_cols;
- skip = 16;
+ skip = 1;
  for i=1:skip*mat_rows*2:data_rows
      U = data(i:i+mat_rows-1, 1:mat_cols);
      V = data(i+mat_rows: i+2*mat_rows-1, 1:mat_cols);
@@ -31,7 +31,7 @@ n = size(data);
 title('Function plot');
 xlabel('x');
 ylabel('y');
-%pause(0.5)
+pause(0.0)
 %figure
 hold on 
 drawnow

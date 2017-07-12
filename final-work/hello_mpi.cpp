@@ -88,11 +88,14 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
     unsigned int step = 0;
 
+    long double dFanAngle = fanTurns * 2 * pi / nT; //
+    cerr << "fanAngle = " << fanAngle << endl;
+    cerr << "dfanAngle = " << dFanAngle << endl;
+
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
         //clearScreen();
-        long double dFanAngle = fanTurns * 2 * pi / nT; //
-        fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.
+        fanAngle += dFanAngle;
 
         if (fanAngle > 2 * pi) fanAngle = 0;
         if (isnan(U1.at(3, 3))) {
@@ -134,8 +137,6 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     long double P1yy = (P1.at(i, j + 1) - 2.0 * P1.at(i, j) + P1.at(i, j - 1)) / (dy * dy);
                     long double P2yy = (P2.at(i, j + 1) - 2.0 * P2.at(i, j) + P2.at(i, j - 1)) / (dy * dy);
 
-
-
                     long double u2val = U1.at(i, j) - U1.at(i, j) * (dt / dx) * (U1.at(i, j) - U1.at(i - 1, j)) - V1.at(i, j) * (dt / dy) * (U1.at(i, j) - U1.at(i, j - 1))
                                         - (dt / (rho * 2 * dx)) * (P1.at(i + 1, j) - P1.at(i - 1, j))
                                         + nu * ((dt / (dx * dx)) * (U1.at(i + 1, j) - 2 * U1.at(i, j) + U1.at(i - 1, j)) + (dt / (dy * dy)) * (U1.at(i, j + 1) - 2 * U1.at(i, j) + U1.at(i, j - 1)));
@@ -153,23 +154,24 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
                     long double x = (i + startRow) * dx - xc;
                     long double y = j * dy - yc;
-                    long double theta = atan(y / x);
+                    if(y > nY/2) y -= nY/2;
+                    long double theta = atan2(y , x);
+                    theta += pi;
                     long double beta = theta + (pi / 2.0);
 
                     long double r = sqrt(x * x + y * y);
                     long double tangSpeed = dFanAngle * r;
 
                     long double F = 2.0;
-                    long double Fu = F * r * cos(beta);
-                    long double Fv = F * r * sin(beta);
+                    long double Fu = F  * cos(beta);
+                    long double Fv = F  * sin(beta);
 
-                    if (i < nXlocal / 2.0) {
-                        Fu = -Fu;
-                        Fv = -Fv;
-                    }
-                    if ( fabs(tan(theta) - tan(fanAngle)) < 0.1  && r > rMin && r < rMax) {
-                        U2.add(i, j, Fu * dt);
-                        V2.add(i, j, Fv * dt);
+                    if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
+                        U2.add(i, j, -Fu * dt);
+                        V2.add(i, j, -Fv * dt);
+                    }else{
+                         //U2.add(i, j, -U2.at(i,j));
+                        //V2.add(i, j,  -V2.at(i,j));
                     }
 
 
