@@ -94,7 +94,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         step++;
         //clearScreen();
         fanAngle += dFanAngle;
-
+        if(t + dt >= tMax) cerr << "last iter" << endl;
         if (fanAngle > 2 * pi) fanAngle = 0;
         if (isnan(U1.at(3, 3))) {
             cerr << "ERROR: nan found" << endl;
