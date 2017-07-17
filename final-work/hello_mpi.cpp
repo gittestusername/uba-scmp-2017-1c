@@ -88,9 +88,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
     unsigned int step = 0;
 
-    long double dFanAngle = fanTurns * 2 * pi / nT; //
-    cerr << "fanAngle = " << fanAngle << endl;
-    cerr << "dfanAngle = " << dFanAngle << endl;
+    long double dFanAngle = fanTurns * 2 * pi / nT;
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
