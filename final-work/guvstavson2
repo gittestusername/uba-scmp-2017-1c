@@ -1,6 +1,15 @@
+Experimento 3. Parametros varian con el numero de nucleos. Si uso n nucleos, uso xMax = yMax = n.
+O sea que escalo linealmente el tamaño del experimento con la cantidad de nucleos.
+Ademas mido el trabajo realizado de la siguiente forma, tomo trabajo = iteraciones*nX*nY. O sea la cantidad de elementos calculados.
+Todas las tareas seran frenadas a los 20 segundos, y la unidad en que esta expresado el trabajo es en millones de elementos calculados.
 
-long double xMax = 3.0;
-long double yMax = 3.0;
+
+Parametros:
+
+
+
+long double xMax = CORES;
+long double yMax = CORES;
 long double tMax = 2.0;
 long double nu = 0.1; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
@@ -23,3 +32,10 @@ long double fanTurns = 1.0;
 long double pi = atan(1) * 4;
 unsigned int stepsUntilPrint = 3500000;
 long double F = 2.0;
+
+
+Resultados:
+cores, work at 20s
+
+
+
