@@ -1,6 +1,6 @@
 
-long double xMax = 5.0;
-long double yMax = 5.0;
+long double xMax = 10.0;
+long double yMax = 10.0;
 long double tMax = 2.0;
 long double nu = 0.1; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
