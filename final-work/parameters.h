@@ -21,5 +21,5 @@ long double rMax = 0.4 * min(xMax, yMax) / 2.0;
 long double rMin = 0.1 * min(xMax, yMax) / 2.0;
 long double fanTurns = 1.0;
 long double pi = atan(1) * 4;
-unsigned int stepsUntilPrint = 200;
+unsigned int stepsUntilPrint = 35000;
 long double F = 2.0;
