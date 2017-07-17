@@ -96,6 +96,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
+        if(myId == 0) cerr << step << " ";
         //clearScreen();
         fanAngle += dFanAngle;
         if (fanAngle > 2 * pi) fanAngle = 0;

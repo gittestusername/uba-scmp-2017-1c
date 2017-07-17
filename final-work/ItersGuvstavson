@@ -1,3 +1,6 @@
+PARAMETERS: 
+
+
 
 long double xMax = 20.0;
 long double yMax = 20.0;
@@ -23,3 +26,8 @@ long double fanTurns = 1.0;
 long double pi = atan(1) * 4;
 unsigned int stepsUntilPrint = 3500000;
 long double F = 2.0;
+
+
+
+Iterations in 30 seconds:
+

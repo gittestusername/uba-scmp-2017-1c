@@ -1,7 +1,10 @@
+PARAMETERS:
+
+
 
 long double xMax = 20.0;
 long double yMax = 20.0;
-long double tMax = 2.0;
+long double tMax = 0.5;
 long double nu = 0.1; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
@@ -21,5 +24,24 @@ long double rMax = 0.4 * min(xMax, yMax) / 2.0;
 long double rMin = 0.1 * min(xMax, yMax) / 2.0;
 long double fanTurns = 1.0;
 long double pi = atan(1) * 4;
-unsigned int stepsUntilPrint = 3500000;
+unsigned int stepsUntilPrint = 35000;
 long double F = 2.0;
+
+
+
+21 maquinas, 4 cores cada una.
+
+TIMES: 
+
+cpus, time
+30 real	0m43.681s
+25 real	0m45.017s
+20 real	0m49.776s
+15 real	0m56.197s
+12 real	1m9.997s
+10 real	1m22.439s
+9 real	1m34.491s
+8 real	1m42.819s
+6 real	2m22.737s
+5 real	2m51.753s
+3 real	5m43.118s
