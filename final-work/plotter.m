@@ -3,14 +3,14 @@ data = dlmread('out');
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
- mat_rows = 4*10 + 1;
+ mat_rows = 5*2*10 + 1;
  mat_cols = data_cols;
- skip = 1;
+ skip = 16;
  for i=1:skip*mat_rows*2:data_rows
      U = data(i:i+mat_rows-1, 1:mat_cols);
      V = data(i+mat_rows: i+2*mat_rows-1, 1:mat_cols);
      i
-   idx = 16;
+   idx = 1;
    for i=1:mat_rows
        x = i;
        for j=1:data_cols

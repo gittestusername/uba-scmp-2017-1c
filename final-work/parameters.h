@@ -1,8 +1,8 @@
 
-long double xMax = 2.0;
-long double yMax = 2.0;
-long double tMax = 0.1;
-long double nu = 0.1; //viscosidad
+long double xMax = 5.0;
+long double yMax = 5.0;
+long double tMax = 4.0;
+long double nu = 0.1; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
 long double dy = (1.0 / 20.0);
@@ -17,8 +17,9 @@ long double minFixedPointIters = 10;
 bool debug = true;
 long double xc = xMax / 2;
 long double yc = yMax / 2;
-long double rMax = 0.8 * min(xMax, yMax) / 2.0;
-long double rMin = 0.3 * min(xMax, yMax) / 2.0;
-long double fanTurns = 4.0;
+long double rMax = 0.4 * min(xMax, yMax) / 2.0;
+long double rMin = 0.1 * min(xMax, yMax) / 2.0;
+long double fanTurns = 1.0;
 long double pi = atan(1) * 4;
-unsigned int stepsUntilPrint = 5;
+unsigned int stepsUntilPrint = 200;
+long double F = 2.0;

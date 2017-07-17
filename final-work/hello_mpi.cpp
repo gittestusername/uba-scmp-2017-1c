@@ -69,6 +69,10 @@ void setPBorders(int myId, int cantProcs, mat2 &P0, mat2 &P1, mat2 &P2, int nX, 
             P1.set(0, c, P1.at(1, c));
             P2.set(0, c, P2.at(1, c));
         }
+
+        P0.set(0, 5, 0); //We need one element to be zero.
+        P1.set(0, 5, 0);
+        P2.set(0, 5, 0);
     }
 }
 
@@ -94,7 +98,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         step++;
         //clearScreen();
         fanAngle += dFanAngle;
-        if(t + dt >= tMax) cerr << "last iter" << endl;
+        if (t + dt >= tMax) cerr << "last iter" << endl;
         if (fanAngle > 2 * pi) fanAngle = 0;
         if (isnan(U1.at(3, 3))) {
             cerr << "ERROR: nan found" << endl;
@@ -152,7 +156,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
                     long double x = (i + startRow) * dx - xc;
                     long double y = j * dy - yc;
-                    if(y > nY/2) y -= nY/2;
+                    if (y > nY / 2) y -= nY / 2;
                     long double theta = atan2(y , x);
                     theta += pi;
                     long double beta = theta + (pi / 2.0);
@@ -160,15 +164,14 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     long double r = sqrt(x * x + y * y);
                     long double tangSpeed = dFanAngle * r;
 
-                    long double F = 2.0;
                     long double Fu = F  * cos(beta);
                     long double Fv = F  * sin(beta);
 
                     if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
                         U2.add(i, j, -Fu * dt);
                         V2.add(i, j, -Fv * dt);
-                    }else{
-                         //U2.add(i, j, -U2.at(i,j));
+                    } else {
+                        //U2.add(i, j, -U2.at(i,j));
                         //V2.add(i, j,  -V2.at(i,j));
                     }
 
