@@ -1,0 +1,6 @@
+\begin{section}{Conclusión}
+Los resultados obtenidos sugieren que, como es sugerido por la Ley de Amdahl, intentar agregar unidades de procesamiento con la esperanza de reducir el tiempo de procesamiento que toma un trabajo dado es eficiente solo hasta cierto punto. La sección serial del programa pasará a dominar el tiempo de ejecución y no se podrá disminuir lo que toma en terminar.
+~\\
+~\\
+Por otro lado, notamos que es beneficioso aumentar la carga de trabajo paralelo, ya que así el porcentaje de tiempo de procesador que se gasta en procesar datos aumenta cada vez mas, mientras que en comparación el tiempo utilizado en procesar la porción serial permanece pequeño. Esto nos indica que los tipos de procesamiento que se verán beneficiados del paralelismo son aquellos donde podamos incrementar fuertemente los cálculos realizados por la sección paralela, siendo las simulaciones realizadas mediante diferencias finitas un buen ejemplo de esto último.
+\end{section}

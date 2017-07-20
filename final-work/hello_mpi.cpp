@@ -96,7 +96,9 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
-        if(myId == 0) cerr << "work  = "<< step*nX*nY/1000000.0 << ",  ";
+        if (myId == 0 && printWork) cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
+        if (myId == 0 && printPercentage && step % 50 == 0) cerr << 100 * t / tMax << "%" << endl;
+
         //clearScreen();
         fanAngle += dFanAngle;
         if (fanAngle > 2 * pi) fanAngle = 0;
@@ -162,16 +164,28 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     long double beta = theta + (pi / 2.0);
 
                     long double r = sqrt(x * x + y * y);
-                    long double tangSpeed = dFanAngle * r;
+                    long double tanVel = dFanAngle * r;
+                    long double tanVelX = tanVel*cos(beta);
+                    long double tanVelY = tanVel*sin(beta);
 
-                    long double Fu = F  * cos(beta);
-                    long double Fv = F  * sin(beta);
+                    long double relVelX = tanVelX - U2.at(i, j);
+                    long double relVelY = tanVelY - V2.at(i, j);
+                    long double Fx = 0.5 * fanArea * C_d*relVelX / dt;
+                    long double Fy = 0.5 * fanArea * C_d*relVelY / dt; //Mass(dt*dx since water density is 1)
+                    //times tangent expected speed
+                    //divided by time
 
-                    if ( fabs(theta - fanAngle) < 0.1  && r > rMin && r < rMax) {
-                        U2.add(i, j, -Fu * dt);
-                        V2.add(i, j, -Fv * dt);
+
+                    long double Fu = Fx;//F * cos(beta);
+                    long double Fv = Fy;//F * sin(beta);
+
+                    long double angleDif = fabs(theta - fanAngle);
+                    if ( angleDif < fanWidth  && r > rMin && r < rMax) {
+                        long double strMult = 1 - angleDif / fanWidth;
+                        U2.add(i, j, -Fu * dt * strMult);
+                        V2.add(i, j, -Fv * dt * strMult);
                     } else {
-                        //U2.add(i, j, -U2.at(i,j));
+                        // U2.add(i, j, -U2.at(i,j));
                         //V2.add(i, j,  -V2.at(i,j));
                     }
 
@@ -287,8 +301,16 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     MPI_Recv(tmp.data, rowRange * nY, MPI_LONG_DOUBLE, p, TAG, MPI_COMM_WORLD, &stat);
                     copyRowsTo(V, tmp, rpt[p].first);
                 }
-                U.print();
-                V.print();
+                if (onlyPrintFan) {
+                    long double x0 = (xc + rMin * cos(fanAngle)) / dx;
+                    long double y0 = (yc + rMin * sin(fanAngle)) / dy;
+                    long double xf = (xc + rMax * cos(fanAngle)) / dx;
+                    long double yf = (yc + rMax * sin(fanAngle)) / dy;
+                    cout << x0 << " " << y0 << " " << xf << " " <<  yf << endl;
+                } else {
+                    U.print();
+                    V.print();
+                }
             } else {
                 MPI_Send(U1.data, U1.rows()*U1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
                 MPI_Send(V1.data, V1.rows()*V1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);

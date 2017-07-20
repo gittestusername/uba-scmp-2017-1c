@@ -107,14 +107,16 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
 //el reactor peude ser circular o cuadrado.
 int main() {
 
-    long double xMax = 2.0;
-    long double yMax = 2.0;
-    long double tMax = 0.1;
-    long double nu = 0.1; //viscosidad
+ 
+    long double xMax = 20.0;
+    long double yMax = 20.0;
+    long double tMax = 0.5;
+    long double nu = 0.1; //viscosidad. Era 0.1.
     long double rho = 1.0;  //densidad
     long double dx = (1.0 / 20.0);
     long double dy = (1.0 / 20.0);
-    long double dt = 0.00001;
+    long double dt = 0.0001;
+
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
@@ -131,7 +133,7 @@ int main() {
     long double fanAngle = 0.0;
 
     long double pi = atan(1) * 4;
-    unsigned int stepsUntilPrint = 5000;
+    unsigned int stepsUntilPrint = 35000;
 
     //0 es tiempo n-1, 1 es tiempo n, 2 es tiempo n+1
     //3 es simplemente las matrices auxiliares para no perder datos de el tiempo 2
@@ -161,9 +163,13 @@ int main() {
     }
 
     unsigned long int iter = 0;
+        unsigned long int step = 0;
+
     for (long double t = 0.0; t < tMax; t = t + dt) {
         //clearScreen();
-
+        cerr << 100*t/tMax << "%" << endl;
+        step++;
+        cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
 
         long double dFanAngle = fanTurns * 2 * pi / nT; //
         fanAngle += dFanAngle; //TODO: solo funciona en el 1er y tercer cuadrante.

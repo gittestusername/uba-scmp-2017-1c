@@ -1,0 +1,66 @@
+% Configuración del tipo páginas
+        \documentclass[12pt, a4paper,english,spanish]{amsart}
+        \parindent = 10 pt
+        \parskip=1.5pt 
+        \usepackage[width=15.5cm, left=3cm, top=2.5cm, height= 24.5cm]{geometry}
+
+% Paquete para reconocer la separación en sílabas en español
+        \usepackage[utf8]{inputenc}
+        \usepackage[spanish]{babel}
+
+% Paquetes especiales
+        \usepackage{amsmath}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{upgreek}
+        \usepackage{ifthen}
+        \usepackage{alltt}
+        \usepackage[pdftex]{graphicx}
+        \usepackage{subfig}
+        \usepackage{float}
+        \usepackage{mathtools}
+        \usepackage{amsthm}
+        \usepackage[vlined,tworuled,commentsnumbered,linesnumbered]{algorithm2e}
+        \usepackage{hyperref} %links
+        \usepackage{etoolbox} %set verbatim spacing
+
+
+        
+\begin{document}
+%setting verbatim spacing
+\makeatletter
+\preto{\@verbatim}{\topsep=0pt \partopsep=0pt }
+\makeatother
+
+\begin{center}
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+~\\
+   \Large\textbf{Trabajo práctico de fin de cursada}\\
+   \Large\textbf{Sistemas complejos en maquinas paralelas}\\
+   \large\textit{Alejandro Martín Ventura}\\
+\end{center}
+\newpage
+
+\input{intro.tex}
+\newpage
+\input{modelado.tex}
+\input{discretizacion.tex}
+\input{contorno.tex}
+\newpage
+\input{implementacion.tex}
+\newpage
+\input{resultados.tex}
+\input{conclusion.tex}
+
+
+\end{document}

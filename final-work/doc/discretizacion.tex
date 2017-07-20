@@ -1,0 +1,96 @@
+
+\begin{section}{Discretización}
+Comenzaremos con algunas definiciones. al modelar con diferencias finitas, se utilizan ciertos reemplazos de los operadores diferenciales conocidos como discretizaciónes. Como su nombre indica, estos son versiones discretas de los operadores, y se los usa bajo el supuesto de que en el limite se comportan de forma similar. Pasaremos ahora a definir algunas discretizaciónes que serán utilizadas en al hacer el pasaje.
+~\\
+~\\
+Diferencias centradas de primer orden.
+\begin{center}
+
+~\\
+~\\
+$\frac{dU}{dx} = \frac{U^{n}_{i+1,j} - U^{n}_{i-1,j}}{2dx} $
+~\\
+~\\
+$\frac{dU}{dy} = \frac{U^{n}_{i,j+1} - U^{n}_{i,j-1}}{2dy} $
+~\\
+~\\
+$\frac{dU}{dt} = \frac{U^{n+1}_{i,j} - U^{n-1}_{i,j}}{2dt} $
+~\\
+~\\
+\end{center}
+
+Diferencias centradas de segundo orden.
+\begin{center}
+
+~\\
+~\\
+$\frac{d^{2}U}{dx^{2}} = \frac{ U^{n}_{i+1,j} - 2*U^{n}_{i,j} + U^{n}_{i-1,j}}{dx^2}$
+~\\
+~\\
+$\frac{d^{2}U}{dy^{2}} = \frac{ U^{n}_{i,j+1} - 2*U^{n}_{i,j} + U^{n}_{i,j-1}}{dx^2}$
+~\\
+~\\
+$\frac{d^{2}U}{dt^{2}} = \frac{ U^{n+1}_{i,j} - 2*U^{n}_{i,j} + U^{n-1}_{i,j}}{dt^2}$
+~\\
+~\\
+\end{center}
+
+Diferencias adelantadas de primer orden.
+\begin{center}
+
+~\\
+~\\
+$\frac{dU}{dx} = \frac{U^{n}_{i+1,j} - U^{n}_{i,j}}{dx} $
+~\\
+~\\
+$\frac{dU}{dy} = \frac{U^{n}_{i,j+1} - U^{n}_{i,j}}{dy} $
+~\\
+~\\
+$\frac{dU}{dt} = \frac{U^{n+1}_{i,j} - U^{n}_{i,j}}{dx} $
+~\\
+~\\
+\end{center}
+
+Diferencias atrasadas de primer orden.
+\begin{center}
+
+~\\
+~\\
+$\frac{dU}{dx} = \frac{U^{n}_{i,j} - U^{n}_{i-1,j}}{dx} $
+~\\
+~\\
+$\frac{dU}{dy} = \frac{U^{n}_{i,j} - U^{n}_{i,j-1}}{dy} $
+~\\
+~\\
+$\frac{dU}{dt} = \frac{U^{n}_{i,j} - U^{n-1}_{i,j}}{dx} $
+~\\
+~\\
+\end{center}
+
+Reemplazando estas discretizaciónes en las ecuaciones semi acopladas de Navier Stokes y obtenemos: 
+
+\begin{center}
+~\\
+~\\
+~\\
+$\frac{u_{i,j}^{n+1}-u_{i,j}^{n}}{\Delta t}+u_{i,j}^{n}\frac{u_{i,j}^{n}-u_{i-1,j}^{n}}{\Delta x}+v_{i,j}^{n}\frac{u_{i,j}^{n}-u_{i,j-1}^{n}}{\Delta y}
+=-\frac{1}{\rho}\frac{p_{i+1,j}^{n}-p_{i-1,j}^{n}}{2\Delta x}+\nu (\frac{u_{i+1,j}^{n}-2u_{i,j}^{n}+u_{i-1,j}^{n}}{\Delta x^2}+\frac{u_{i,j+1}^{n}-2u_{i,j}^{n}+u_{i,j-1}^{n}}{\Delta y^2}) + Fu$
+~\\
+~\\
+~\\
+$\frac{v_{i,j}^{n+1}-v_{i,j}^{n}}{\Delta t}+u_{i,j}^{n}\frac{v_{i,j}^{n}-v_{i-1,j}^{n}}{\Delta x}+v_{i,j}^{n}\frac{v_{i,j}^{n}-v_{i,j-1}^{n}}{\Delta y}=-\frac{1}{\rho}\frac{p_{i,j+1}^{n}-p_{i,j-1}^{n}}{2\Delta y}
++\nu(\frac{v_{i+1,j}^{n}-2v_{i,j}^{n}+v_{i-1,j}^{n}}{\Delta x^2}+\frac{v_{i,j+1}^{n}-2v_{i,j}^{n}+v_{i,j-1}^{n}}{\Delta y^2}) + Fv$
+~\\
+~\\
+~\\
+$\frac{p_{i+1,j}^{n}-2p_{i,j}^{n}+p_{i-1,j}^{n}}{\Delta x^2}+\frac{p_{i,j+1}^{n}-2*p_{i,j}^{n}+p_{i,j-1}^{n}}{\Delta y^2} 
+=\rho[\frac{1}{\Delta t}(\frac{u_{i+1,j}-u_{i-1,j}}{2\Delta x}+\frac{v_{i,j+1}-v_{i,j-1}}{2\Delta y})$
+
+\end{center}
+Aquí en la ultima ecuación podemos ver que no se reemplazó directamente cada operador mediante las ecuaciones de discretización, sino que se agregó un termino temporal, sin que hubiera en principio información sobre el tiempo en la ecuación de la presión. Este cambio se hace con el objetivo de terminar de acoplar la ecuación de la presión con las ecuaciones de velocidad. La derivación de esta solución no se presentará en este trabajo.
+~\\
+~\\
+
+Cabe aclarar que al discretizar, se puede modelar el sistema mediante un método implícito o explicito. Un método implícito, o parcialmente implícito, incluiría una ponderación entre los valores de las variables en la iteración n, y la iteración n+1. En este trabajo utilizaremos un método explicito, ya que el sistema de ecuaciones determinado por un método explicito es lineal, y resulta en relaciones donde un elemento en la iteración n+1 depende de otros en la iteración n, pudiendo entonces realizarse los reemplazos en las matrices que representan el sistema de forma directa, y resultando así en una implementación mas sencilla. Un método implícito da como resultado un sistema no lineal, en el cual hay que hacer uso de algún método de resolución de sistemas no lineales, como punto fijo, lo cual aumenta la complejidad de la implementación.
+
+\end{section}

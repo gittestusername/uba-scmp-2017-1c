@@ -35,7 +35,8 @@ long double F = 2.0;
 
 
 Resultados:
-cores, work at 120s (millons of elements)
+cores, work at 120s (millons of elements calculated)
+1, 111.113
 5, 413.814
 20, 1976.24
 35, 3198.04

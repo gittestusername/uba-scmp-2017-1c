@@ -1,0 +1,56 @@
+
+\begin{section}{Ejercicio 1}
+~\\
+
+
+Sean $X_1, ... ,X_n$ una muestra aleatoria con distribución $U(0, b)$ con b un parámetro desconocido. Calcular analíticamente los estimadores de momentos $\hat{b}_{mom}$ y de máxima verosimilitud $\hat{b}_{mv}$. Implementarlos en R como funciones.
+
+
+\begin{subsection}{Estimador de momentos}
+~\\
+
+Comenzaremos calculando la esperanza de una variable uniforme de parámetros 0 y b.\\
+$E(U) = \frac{b+0}{2} = \frac{b}{2}.$\\
+~\\
+
+Ahora para la esperanza muestral, obtenemos\\
+~\\
+
+$\frac{X_1+ ... +X_n}{n}$. \\
+~\\
+Igualamos.\\
+~\\
+
+  $\frac{X_1+ ... +X_n}{n} = \frac{b}{2}$\\
+ $2\frac{X_1+ ... +X_n}{n} = \hat{b}_{mom}$\\
+\end{subsection}
+
+\begin{subsection}{Estimador de máxima verosimilitud}
+~\\
+
+Tomo $f(X_1, ... ,X_n) = \prod_{i=1}^{n}{f(x_i)} = $ 
+$\prod_{i=1}^{n}{\frac{1}{b} I_{[0,b]}(x_i)}$ \\
+~\\
+
+Con lo cual se obtiene la siguiente función de verosimilitud:\\
+~\\
+
+$L(b) = \frac{1}{b^n} \prod_{i=1}^{n}{ I_{[0,b]}(x_i)}$\\
+~\\
+
+Notemos que la función también se puede definir como $\frac{1}{b^n}$ si $0 < X_i < b$ $ \forall i$, o cero fuera de ese rango. O sea, si algún $X_i$ es mayor a b, la función se vuelve nula. \\
+Pero esta condición, $0 \leq X_i \leq b$ $ \forall i$ puede pensarse como $ b > max(X_i)$.\\
+~\\
+
+Dado que donde no es nula, la función es monótona decreciente, puesto que esta compuesta por un cociente con un denominador positivo y monótono creciente, el máximo debe encontrarse exactamente en el punto en el cual deja de ser nula. Esto es, $max(X_i)$, y por lo tanto, este es el estimador de máxima verosimilitud.\\
+~\\
+
+$\hat{b}_{mv} = max(x_i)$
+~\\
+
+\end{subsection}
+
+
+\end{section}
+
+

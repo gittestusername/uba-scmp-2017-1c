@@ -1,12 +1,12 @@
 
-long double xMax = 60.0;
-long double yMax = 60.0;
-long double tMax = 20.0;
-long double nu = 0.1; //viscosidad. Era 0.1.
+long double xMax = 11.0;
+long double yMax = 11.0;
+long double tMax = 1.0;
+long double nu = 0.01; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
 long double dy = (1.0 / 20.0);
-long double dt = 0.0001;
+long double dt = 0.001;
 int nX = round(xMax / dx) + 1;
 int nY = round(yMax / dy) + 1;
 int nT = round(tMax / dt) + 1;
@@ -14,12 +14,20 @@ long double al = 0.5;
 bool upwind = false;
 long double fixedPointError = 0.000001;
 long double minFixedPointIters = 10;
-bool debug = true;
 long double xc = xMax / 2;
 long double yc = yMax / 2;
-long double rMax = 0.4 * min(xMax, yMax) / 2.0;
-long double rMin = 0.1 * min(xMax, yMax) / 2.0;
-long double fanTurns = 1.0;
+long double rMax = 0.5 * min(xMax, yMax) / 2.0;
+long double rMin = 0.2 * min(xMax, yMax) / 2.0;
+long double fanTurns = 2.0;
 long double pi = atan(1) * 4;
-unsigned int stepsUntilPrint = 3500000;
-long double F = 2.0;
+unsigned int stepsUntilPrint = 8;
+long double F = 10.0;
+long double fanWidth = 0.1;
+bool printWork = false;
+long double C_d = 2.0;
+long double fanArea = dx * dy; 
+//todo: area should depende upon intersection
+// of the element with the fan.
+bool printPercentage = true;
+bool onlyPrintFan = false;
+

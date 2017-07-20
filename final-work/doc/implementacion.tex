@@ -1,0 +1,66 @@
+
+\begin{section}{Implementacion}
+La implementación fue realizada casi completamente en C++, excepto por el graficador que se escribió en Matlab. 
+~\\
+~\\
+Corriendo de forma no paralela, el programa define las matrices U2, U2, V1, V2, P1, P2, que representan el estado del sistema en una iteración para la velocidad en u, en v, y la presión, y luego estas mismas en la iteración siguiente. 
+~\\
+~\\
+Se definen las condiciones iniciales del problema, y luego se utiliza el metodo explicito explicado anteriormente para calcular los nuevos valores del sistema. Estos son guardados en U2, V2, y P2. Seguido de esto el programa reemplaza los valores de U1, V1, y P1, por aquellos de U2, V2 y P2, quedado así preparado para la siguiente iteración. 
+~\\
+~\\
+Una salvedad es que al realizar el calculo de los nuevos valores, si un elemento forma un angulo respecto del centro del sistema que es congruente con aquel que debería tener el aspa para el tiempo de esa iteración, entonces a ese elemento se le aplica una fuerza de la forma $F = A \delta v^2$ rho, donde A es el área compartida por los elementos, y $\delta v$ es la diferencia de velocidad, para ese punto, entre el aspa y el fluido. Esta diferencia es calculada restando componente a componente, los elementos correspondientes de las matrices U1 y V1, y la velocidad tangencial del aspa en ese punto, que resulta de multiplicar la velocidad angular por el radio elemento menos el punto central del sistema. 
+~\\
+~\\
+Se implementó también una clase mat2, que representa una matriz, y que contiene un puntero a un arreglo de números de punto flotante de doble precisión y dos enteros que representan el tamaño en filas y columnas de la matriz. Ademas la clase cuenta con funciones que realizan la abstracción de indexar en el arreglo calculando la posición del elemento buscado como la columna pedida, mas la fila pedida multiplicada por la cantidad de columnas. Esta clase también cuenta con una función de impresión que escribe los elementos de la matriz en formato separado por espacios.
+~\\
+~\\
+En cuanto a la paralelización, como se comentó anteriormente se utilizó MPI. El procedimiento básico es el siguiente.
+\begin{itemize}
+\item Se inicializan el comunicador, cantidad de procesos y demás variables pertinentes a MPI.
+~\\
+\item Se calcula una división del espacio de trabajo por filas, para saber de que sección sera responsable cada proceso.
+~\\
+\item El proceso cero define las matrices del sistema y sus condiciones iniciales y luego envía la sección horizontal correspondiente de la matriz a cada proceso. Luego calcula la sección que le corresponde a el mismo.
+~\\
+\item Los otros procesos reciben las secciones que les corresponden.
+~\\
+\item Todos los procesos ejecutan una función encargada de procesar la simulación.
+~\\
+\item Dentro de esta función, se encuentra un ciclo en el cual realizan los cálculos pertinentes a la simulación, y al terminar una iteración, cada proceso envía los nuevos valores de los elementos que pertenecen a su sección, pero que son necesarios para que procesos vecinos calculen la siguiente iteración de sus elementos.
+~\\
+\item Cada proceso recibe los valores enviados por los procesos vecinos.
+~\\
+\item Cada proceso chequea el numero de iteración, y en caso de que sea multiplo de cierto valor prefijado, envía su sección entera al proceso cero para que este imprima. Luego el proceso cero reúne todas las secciones armando las matrices completas.
+~\\
+\item Si es el caso, el proceso cero imprime las matrices U y V por la salida estándar.
+~\\
+\item Luego de esto el ciclo descripto en el paso seis termina, y se vuelve a ejecutar. En caso de haber llegado al tiempo máximo de la simulación, todos los procesos retornan de la función, y luego de la función principal.
+~\\
+~\\
+Aquí cabe aclarar algunas cosas. Primero, la impresión realizada por el proceso cero, imprime U y V de un tiempo, y U yV del tiempo siguiente de forma contigua. Es la rutina de Matlab la que se encarga de separar y conferir significado a esos datos. 
+~\\
+~\\
+Por otro lado, como se dijo el trabajo se divide entre los procesos otorgando a cada uno una franja horizontal del sistema, es decir, se le otorga un numero de fila inicial, y un numero de fila final que determinan los rangos en los que el proceso trabajará. Esta división no es optima, ya que otras formas de dividir el trabajo resultan en un menor intercambio de información entre los procesos durante la simulación, que es un factor importante a la hora de optimizar la velocidad de ejecución del programa. La decisión de utilizar una división horizontal es simplemente por simplicidad del código.
+~\\
+~\\
+Otro detalle es que si bien se dice que cada proceso toma los valores que le faltan para la iteración siguiente, de los procesos vecinos, en cada iteración. En el caso del proceso cero, o del ultimo, solo interactúan con un proceso vecino, ya que las condiciones de contorno no se modifican, o son calculadas por ellos mismos ya que no dependen de elementos extra.
+~\\
+~\\ Ademas, durante la simulación no se crean ni se destruyen matrices, sino que estas son reutilizadas cambiando los valores que contienen para no perder tiempo manejando memoria.
+~\\
+~\\
+Por ultimo se hablará sobre los valores de la malla, es decir, la división del sistema físico representada por las matrices. Durante el testeo del programa se encontró que la solución a veces puede ser inestable. En particular cuando los valores de dx y dy son muy chicos, o el valor de dt es grande, la simulación se vuelve inestable, acumulando error numérico y desbordando la precisión máxima de los tipos numéricos de C++. 
+~\\
+~\\
+Llegado a este punto el programa emite un mensaje de error, avisando que recibió durante la simulación NaN como resultado de un calculo. Sucedido esto el programa termina, y es responsabilidad del usuario del mismo, aumentando el valor del tamaño de los elementos, haciendo menos fina la malla espacialmente, o disminuyendo el tamaño del salto temporal entre iteraciones, haciendo mas fina la simulación en el tiempo. Cualquiera de estas dos medidas, elegido el valor correcto, resuelve el problema de la estabilidad. 
+~\\
+~\\
+Se aclara también que a veces una simulación se vuelve inestable, pero termina antes de que los valores calculados desborden de la precisión numérica de las variables, en ese caso la simulación sera incorrecta, incluso no habiendo mensaje de error alguno. 
+~\\
+~\\
+Sin embargo, algo bueno de las simulaciones de dinámica de fluidos por diferencias finitas, es que muy a menudo, cuando se vuelven inestables, lo hacen de una forma muy clara, que no se comporta para nada como un fluido, se recomienda entonces hecha un vistazo, siempre que se pueda, a algún gráfico de los resultados de la simulación para comprobar que esta se mantuvo estable.
+\end{itemize}
+
+\end{section}
+
+
