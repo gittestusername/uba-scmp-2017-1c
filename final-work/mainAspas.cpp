@@ -107,29 +107,29 @@ void setPBorders(mat2 &P0, mat2 &P1, mat2 &P2, int nX, int nY) {
 //el reactor peude ser circular o cuadrado.
 int main() {
 
- 
-    long double xMax = 20.0;
-    long double yMax = 20.0;
-    long double tMax = 0.5;
+
+
+    long double xMax = CORES;
+    long double yMax = CORES;
+    long double tMax = 20.0;
     long double nu = 0.1; //viscosidad. Era 0.1.
     long double rho = 1.0;  //densidad
     long double dx = (1.0 / 20.0);
     long double dy = (1.0 / 20.0);
     long double dt = 0.0001;
-
     int nX = round(xMax / dx) + 1;
     int nY = round(yMax / dy) + 1;
     int nT = round(tMax / dt) + 1;
     long double al = 0.5;
     bool upwind = false;
-    long double fixedPointError = 0.00001;
+    long double fixedPointError = 0.000001;
     long double minFixedPointIters = 10;
     bool debug = true;
     long double xc = xMax / 2;
     long double yc = yMax / 2;
-    long double rMax = 0.8 * min(xMax, yMax) / 2.0;
-    long double rMin = 0.3 * min(xMax, yMax) / 2.0;
-    long double fanTurns = 2.0;
+    long double rMax = 0.4 * min(xMax, yMax) / 2.0;
+    long double rMin = 0.1 * min(xMax, yMax) / 2.0;
+    long double fanTurns = 1.0;
     long double fanAngle = 0.0;
 
     long double pi = atan(1) * 4;
@@ -163,11 +163,11 @@ int main() {
     }
 
     unsigned long int iter = 0;
-        unsigned long int step = 0;
+    unsigned long int step = 0;
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         //clearScreen();
-        cerr << 100*t/tMax << "%" << endl;
+        cerr << 100 * t / tMax << "%" << endl;
         step++;
         cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
 

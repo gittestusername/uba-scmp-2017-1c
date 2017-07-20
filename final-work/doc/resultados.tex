@@ -57,25 +57,26 @@ Con lo cual los speedups serían:
 \begin{verbatim}
 nucleos speedup
 
-30      0.050367427
-25      0.051907934
-20      0.0573954133
-15      0.0647993017
-12      0.0807117234
-10      0.0950582706
-9       0.1089551189
-8       0.1185579195
-6       0.1645863289
-5       0.1980439252
-3       0.3956404577
+30      19.8541013255
+25      19.2648777129
+20      17.4229950177
+15      15.4322650675
+12      12.3897738475
+10      10.5198631716
+9       9.1780910351
+8       8.434695922
+6       6.0758387804
+5       5.0493848725
+3       2.5275473744
 1       1
+
 \end{verbatim}
 
 En el siguiente gráfico se pueden ver los datos de la tabla.
 ~\\
 \includegraphics{AmdahlSpeedup}
 
-Como puede apreciarse, el speedup tiende hacia una asintota horizontal, en la cual se encuentra la sección serial del programa. El mejor speedup que se pudo conseguir fue de 0.050367427.
+Como puede apreciarse, el speedup tiende a disminuir al aumentar mucho la cantidad de nucleos, perdiendo approximadamente un tercio del rendimiento al alcanzar los 30.
 \end{subsection}
 
 
@@ -92,15 +93,38 @@ $S(s) = p - \alpha(p-1)$
 ~\\
 ~\\
 Donde S es el speedup, p es el número de procesadores, y $\alpha$ la parte no paralelizable del proceso. Notar que si se aumenta notablemente la el trabajo total en la sección paralelizable, haciendo que la proporción de trabajo serial $\alpha$ sea muy pequeña, esto resulta en algo muy similar a $S(s) = p$
+\newpage
+Con los datos obtenidos anteriormente, se obtienen los siguientes datos de eficiencia:
+\begin{verbatim}
+nucleos     eficiencia
 
+30			0.6618033775
+25			0.7705951085
+20			0.8711497509
+15			1.0288176712
+12			1.032481154
+10			1.0519863172
+9			1.0197878928
+8			1.0543369902
+6			1.0126397967
+5			1.0098769745
+3			0.8425157915
+1			1
+\end{verbatim}
 
-En este experimento se quiere dejar el tiempo limite en 120s, y medir cuanto trabajo pudo realizarse para distintas cantidades de unidades de procesamiento.
+En el siguiente grafico se puede observar la perdida de linealidad de estas mediciones al crecer la cantidad de procesadores:
+
+\includegraphics{eficiencia}
+
+~\\
+~\\
+Realizaremos ademas otro tipo de mediciones. En este experimento se quiere dejar el tiempo limite en 120s, y medir cuanto trabajo pudo realizarse para distintas cantidades de unidades de procesamiento.
 ~\\
 ~\\ 
-El programa fue nuevamente ejecutado en una red ethernet con 21 maquinas, cada una disponiendo de 4 núcleos. Al momento de realizar la experimentación, estas maquinas estaban siendo utilizadas, a razón de un núcleo por maquina, con lo cual se disponía de 63 núcleos para procesar la prueba. 
+El programa fue nuevamente ejecutado en una red ethernet con 21 maquinas, cada una disponiendo de 3 núcleos. Al momento de realizar la experimentación, estas maquinas estaban siendo utilizadas, a razón de un núcleo por maquina, con lo cual se disponía de 63 núcleos para procesar la prueba. 
 ~\\
 ~\\
-Medir la cantidad de trabajo que se utilizó para la versión paralela, en la versión serial resultó prohibitivo, por lo cual no se dispone de una medida de tiempo serial para la misma cantidad de trabajo que la utilizada en las mediciones sobre el programa paralelo. Por esto ultimo no fue posible hacer una medición de eficiencia. Aún así se pretende obtener una medida sobre el rendimiento del paralelizado realizado. Para eso se contó la cantidad de elementos del sistema calculados, que al fin y al cabo es lo que nos interesa calcular. Es importante aclarar que cuando en la tabla de resultados figura que se utilizó un solo núcleo, esa medición fue realizada sobre la versión serial del programa, no perdiendo así tiempo en inicializar las variables de MPI, calcular las secciones, y otras cuestiones que no son necesarias ne la versión serial. Por comodidad, la unidad de medida elegida para medir el trabajo fue millones de elementos calculados. Los resultados son los siguientes:
+Se contó la cantidad de elementos del sistema calculados, que al fin y al cabo es lo que nos interesa calcular. Es importante aclarar que cuando en la tabla de resultados figura que se utilizó un solo núcleo, esa medición fue realizada sobre la versión serial del programa, no perdiendo así tiempo en inicializar las variables de MPI, calcular las secciones, y otras cuestiones que no son necesarias ne la versión serial. Por comodidad, la unidad de medida elegida para medir el trabajo fue millones de elementos calculados. Los resultados son los siguientes:
 ~\\
 \begin{verbatim}
 núcleos   trabajo
@@ -112,7 +136,7 @@ núcleos   trabajo
 60        4294.03
 \end{verbatim}
 
-Estos se comportan linealmente, como puede verse en el siguiente gráfico:
+Como podemos ver, estos se comportan linealmente, como puede verse en el siguiente gráfico:
 
 \includegraphics{Gustavson}
 
@@ -142,8 +166,7 @@ El siguiente es el gráfico correspondiente a estos valores:
 
 \includegraphics{Gustavson2}
 
- Vemos en si bien la gráfica se veía lineal, la pendiente era menor a uno, y el trabajo realizado es claramente menor que el resultado de multiplicar la cantidad de núcleos por el trabajo que es capaz de realizar la versión serial.
- A pesar de esto, se puede ver que se puede aumentar la cantidad de trabajo realizable de forma lineal agregando unidades de procesamiento, lo cual es un resultado mas optimista que el planteado por la Ley de Amdahl.
+ A primera vista parece que se pierde mucho rendimiento. En realidad, si tenemos en cuenta que la corrida de un solo nucleo fue realizada con una versio distinta que no incluye codigo de MPI, se entiende que ese valor aparezca como un outlier. Dicho esto, lo que esperariamos ver si el programa escalara, seria una recta horizontal. Si bien no es el resultado obtenido, no se dista mucho. Lo importante es que encontramos que se puede aumentar la cantidad de trabajo realizable significativamente agregando unidades de procesamiento, lo cual es un resultado mas optimista que el insinuado por la Ley de Amdahl.
 
 \end{subsection}
 \end{section}
