@@ -140,6 +140,7 @@ int main() {
         fill(P2[i].begin(), P2[i].end(), 0.0);
     }
 
+    unsigned long int iter = 0;
     unsigned long int step = 0;
 
     for (long double t = 0.0; t < tMax; t = t + dt) {
@@ -155,12 +156,14 @@ int main() {
             cerr << "ERROR: nan found" << endl;
             exit(EXIT_FAILURE);
         }
-        if (step % stepsUntilPrint == 0) {
+        if (iter % stepsUntilPrint == 0) {
             printMat(U0);
             printMat(V0);
         }
 
+        for (int k = 0; true; ++k) {
             setPBorders(P0, P1, P2, nX, nY);
+            iter++;
 
             for (int i = 1; i < nX - 1; ++i) {
                 for (int j = 1; j < nY - 1; ++j) {
@@ -210,6 +213,9 @@ int main() {
                     long double r = sqrt(x * x + y * y);
                     long double tangSpeed = dFanAngle * r;
 
+                    //long double Fu = r * (cos(theta + dTheta) - cos(theta));
+                    //long double Fv = r * (sin(theta + dTheta) - sin(theta));
+                    //cerr << "(Fu, Fv) = (" << Fu << ", " << Fv << ")" << endl;
                     long double F = 2.0;
                     long double Fu = F * r * cos(beta);
                     long double Fv = F * r * sin(beta);
@@ -222,6 +228,8 @@ int main() {
                         V2[i][j] += Fv * dt;
                     }
                 }
+            }
+
         }
 
         U0 = U1;

@@ -97,7 +97,8 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
         if (myId == 0 && printWork) cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
-        if (myId == 0 && printPercentage && step % 50 == 0) cerr << 100 * t / tMax << "%" << endl;
+        if (myId == 0 && printPercentage && step % printPercentageSteps == 0) cerr << 100 * t / tMax << "%" << endl;
+        if(100 * t / tMax > percentageStop) return;
 
         //clearScreen();
         fanAngle += dFanAngle;
@@ -370,7 +371,6 @@ int main(int argc, char *argv[]) {
 
 
     unsigned long int iter = 0;
-    long double fanAngle = 0.0;
     vector<pair<int, int>> rpt = calcRowsPerThread(nX, cantProcs);
 
 
