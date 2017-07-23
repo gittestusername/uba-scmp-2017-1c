@@ -21,7 +21,7 @@ long double rMax = 0.5 * min(xMax, yMax) / 2.0;
 long double rMin = 0.2 * min(xMax, yMax) / 2.0;
 long double fanTurns = 2.0;
 long double fanAngle = 0.0;
-int printPercentageSteps = 2;
+int printPercentageSteps = 20;
 long double percentageStop = 100.0;
 
 long double pi = atan(1) * 4;
