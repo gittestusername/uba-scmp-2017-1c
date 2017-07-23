@@ -1,8 +1,8 @@
 using namespace std;
 
-long double xMax = 150.0;
-long double yMax = 150.0;
-long double tMax = 2.0;
+long double xMax = 250.0;
+long double yMax = 250.0;
+long double tMax = 0.5;
 long double nu = 0.01; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
