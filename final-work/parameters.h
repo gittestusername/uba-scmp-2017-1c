@@ -1,8 +1,8 @@
 using namespace std;
 
-long double xMax = 75.0;
-long double yMax = 75.0;
-long double tMax = 1.0;
+long double xMax = 15.0;
+long double yMax = 15.0;
+long double tMax = 15.0;
 long double nu = 0.01; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
@@ -25,7 +25,6 @@ int printPercentageSteps = 20;
 long double percentageStop = 100.0;
 
 long double pi = atan(1) * 4;
-unsigned int stepsUntilPrint = 999999;
 long double F = 10.0;
 long double fanWidth = 0.1;
 bool printWork = false;
@@ -33,6 +32,7 @@ long double C_d = 2.0;
 long double fanArea = dx * dy;
 //todo: area should depende upon intersection
 // of the element with the fan.
+unsigned int stepsUntilPrint = 2000;
 bool printPercentage = true;
-bool onlyPrintFan = false;
+bool onlyPrintFan = true;
 
