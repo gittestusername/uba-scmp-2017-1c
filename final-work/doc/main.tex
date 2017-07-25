@@ -1,5 +1,5 @@
 % Configuración del tipo páginas
-        \documentclass[12pt, a4paper,english,spanish]{amsart}
+        \documentclass[9pt, a4paper,english,spanish]{amsart}
         \parindent = 10 pt
         \parskip=1.5pt 
         \usepackage[width=15.5cm, left=3cm, top=2.5cm, height= 24.5cm]{geometry}
@@ -23,9 +23,17 @@
         \usepackage[vlined,tworuled,commentsnumbered,linesnumbered]{algorithm2e}
         \usepackage{hyperref} %links
         \usepackage{etoolbox} %set verbatim spacing
+	\setlength{\columnsep}{40pt} %two column spacing
+	\usepackage{xcolor}%colorbox
+\usepackage{palatino, eulervm}
+\linespread{1.05}        % Palatino needs more leading
+\usepackage[section]{placeins} %floatings(as figures) remain in their section
+\usepackage{tcolorbox} %to use verbatim in a box
 
 
-        
+
+
+
 \begin{document}
 %setting verbatim spacing
 \makeatletter
@@ -33,34 +41,41 @@
 \makeatother
 
 \begin{center}
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-~\\
-   \Large\textbf{Trabajo práctico de fin de cursada}\\
-   \Large\textbf{Sistemas complejos en maquinas paralelas}\\
-   \large\textit{Alejandro Martín Ventura}\\
+~\\ ~\\ ~\\ ~\\ ~\\ ~\\ 
+{\LARGE Sistemas complejos en maquinas paralelas}% Title
+\vspace*{1\baselineskip}
+
+\scshape % Small caps
+Trabajo práctico de fin de cursada
+
+\vspace*{1\baselineskip}
+Universidad de Buenos Aires\\[\baselineskip]
+
+
+\vspace*{5\baselineskip} 
+
+Escrito por \\[\baselineskip]
+{\Large Alejandro Martín Ventura\par} 
+
+\vspace*{1\baselineskip}
+\today
+
 \end{center}
 \newpage
 
-\input{intro.tex}
+\tableofcontents
+
 \newpage
+\twocolumn
+\input{intro.tex}
+
 \input{modelado.tex}
+
 \input{discretizacion.tex}
 \input{contorno.tex}
-\newpage
 \input{implementacion.tex}
-\newpage
+
 \input{resultados.tex}
-\newpage
 \input{conclusion.tex}
 
 

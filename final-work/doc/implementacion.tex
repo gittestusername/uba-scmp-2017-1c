@@ -1,4 +1,7 @@
 
+~\\
+~\\
+
 \begin{section}{Implementacion}
 La implementación fue realizada casi completamente en C++, excepto por el graficador que se escribió en Matlab. 
 ~\\
@@ -9,7 +12,7 @@ Corriendo de forma no paralela, el programa define las matrices U2, U2, V1, V2, 
 Se definen las condiciones iniciales del problema, y luego se utiliza el metodo explicito explicado anteriormente para calcular los nuevos valores del sistema. Estos son guardados en U2, V2, y P2. Seguido de esto el programa reemplaza los valores de U1, V1, y P1, por aquellos de U2, V2 y P2, quedado así preparado para la siguiente iteración. 
 ~\\
 ~\\
-Una salvedad es que al realizar el calculo de los nuevos valores, si un elemento forma un angulo respecto del centro del sistema que es congruente con aquel que debería tener el aspa para el tiempo de esa iteración, entonces a ese elemento se le aplica una fuerza de la forma $F = A \delta v^2$ rho, donde A es el área compartida por los elementos, y $\delta v$ es la diferencia de velocidad, para ese punto, entre el aspa y el fluido. Esta diferencia es calculada restando componente a componente, los elementos correspondientes de las matrices U1 y V1, y la velocidad tangencial del aspa en ese punto, que resulta de multiplicar la velocidad angular por el radio elemento menos el punto central del sistema. 
+Una salvedad es que al realizar el calculo de los nuevos valores, si un elemento forma un angulo respecto del centro del sistema que es congruente con aquel que debería tener el aspa para el tiempo de esa iteración, entonces a ese elemento se le aplica una fuerza de la forma $F = A \delta v^2$, donde A es el área compartida por los elementos, y $\delta v$ es la diferencia de velocidad, para ese punto, entre el aspa y el fluido. Esta diferencia es calculada restando componente a componente, los elementos correspondientes de las matrices U1 y V1, y la velocidad tangencial del aspa en ese punto, que resulta de multiplicar la velocidad angular por el radio elemento menos el punto central del sistema. 
 ~\\
 ~\\
 Se implementó también una clase mat2, que representa una matriz, y que contiene un puntero a un arreglo de números de punto flotante de doble precisión y dos enteros que representan el tamaño en filas y columnas de la matriz. Ademas la clase cuenta con funciones que realizan la abstracción de indexar en el arreglo calculando la posición del elemento buscado como la columna pedida, mas la fila pedida multiplicada por la cantidad de columnas. Esta clase también cuenta con una función de impresión que escribe los elementos de la matriz en formato separado por espacios.
@@ -17,29 +20,21 @@ Se implementó también una clase mat2, que representa una matriz, y que contien
 ~\\
 En cuanto a la paralelización, como se comentó anteriormente se utilizó MPI. El procedimiento básico es el siguiente.
 \begin{itemize}
+
 \item Se inicializan el comunicador, cantidad de procesos y demás variables pertinentes a MPI.
-~\\
 \item Se calcula una división del espacio de trabajo por filas, para saber de que sección sera responsable cada proceso.
-~\\
 \item El proceso cero define las matrices del sistema y sus condiciones iniciales y luego envía la sección horizontal correspondiente de la matriz a cada proceso. Luego calcula la sección que le corresponde a el mismo.
-~\\
 \item Los otros procesos reciben las secciones que les corresponden.
-~\\
 \item Todos los procesos ejecutan una función encargada de procesar la simulación.
-~\\
 \item Dentro de esta función, se encuentra un ciclo en el cual realizan los cálculos pertinentes a la simulación, y al terminar una iteración, cada proceso envía los nuevos valores de los elementos que pertenecen a su sección, pero que son necesarios para que procesos vecinos calculen la siguiente iteración de sus elementos.
-~\\
 \item Cada proceso recibe los valores enviados por los procesos vecinos.
-~\\
 \item Cada proceso chequea el numero de iteración, y en caso de que sea multiplo de cierto valor prefijado, envía su sección entera al proceso cero para que este imprima. Luego el proceso cero reúne todas las secciones armando las matrices completas.
-~\\
 \item Si es el caso, el proceso cero imprime las matrices U y V por la salida estándar.
-~\\
 \item Luego de esto el ciclo descripto en el paso seis termina, y se vuelve a ejecutar. En caso de haber llegado al tiempo máximo de la simulación, todos los procesos retornan de la función, y luego de la función principal.
 ~\\
 ~\\
+
 Aquí cabe aclarar algunas cosas. Primero, la impresión realizada por el proceso cero, imprime U y V de un tiempo, y U yV del tiempo siguiente de forma contigua. Es la rutina de Matlab la que se encarga de separar y conferir significado a esos datos. 
-~\\
 ~\\
 Por otro lado, como se dijo el trabajo se divide entre los procesos otorgando a cada uno una franja horizontal del sistema, es decir, se le otorga un numero de fila inicial, y un numero de fila final que determinan los rangos en los que el proceso trabajará. Esta división no es optima, ya que otras formas de dividir el trabajo resultan en un menor intercambio de información entre los procesos durante la simulación, que es un factor importante a la hora de optimizar la velocidad de ejecución del programa. La decisión de utilizar una división horizontal es simplemente por simplicidad del código.
 ~\\
