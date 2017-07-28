@@ -5,7 +5,7 @@ fanN =  size(fan)
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
- mat_rows = 15*2*10 + 1;
+ mat_rows = 11*2*10 + 1;
  mat_cols = data_cols;
  skip = 1;
  elementSkip = 1;
@@ -40,8 +40,8 @@ pause(2);
        end
    end
    
-   quiver(xs(1:elementSkip:idx-1), ys(1:elementSkip:idx-1), qux(1:elementSkip:idx-1), quy(1:elementSkip:idx-1), 1);  
-   %surf(hm, 'EdgeColor','none');
+  % quiver(xs(1:elementSkip:idx-1), ys(1:elementSkip:idx-1), qux(1:elementSkip:idx-1), quy(1:elementSkip:idx-1), 1);  
+   surf(hm, 'EdgeColor','none');
 
    az = 0;
 el = 90;
@@ -49,7 +49,7 @@ view(az, el);
 title('Function plot');
 xlabel('x');
 ylabel('y');
-pause(0.5)
+%pause(0.5)
 %figure
 hold on 
 a0 = fan(fanIndex*skip, 3)

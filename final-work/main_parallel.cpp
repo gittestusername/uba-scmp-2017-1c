@@ -82,6 +82,10 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
     int nXlocal = U0.rows(); //replace nX and nY with local ones.
 
+
+    long double buff[500]; //for recieveing border info.
+
+
     //pre-allocating matrixes for sharing border data.
     mat2 U1ShareU(1, nY);
     mat2 U1ShareD(1, nY);
@@ -98,7 +102,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         step++;
         if (myId == 0 && printWork) cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
         if (myId == 0 && printPercentage && step % printPercentageSteps == 0) cerr << 100 * t / tMax << "%" << endl;
-        if(100 * t / tMax > percentageStop) return;
+        if (100 * t / tMax > percentageStop) return;
 
         //clearScreen();
         fanAngle += dFanAngle;
@@ -118,6 +122,13 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
             for (int i = 1; i < nXlocal - 1; ++i) {
                 for (int j = 1; j < nY - 1; ++j) {
 
+
+                    //TODO: Order optimization coould be implemented as follows:
+                    //We start at i = 2, instead of 1, then at the end of each iteration.
+                    //if(i == n-1) recv.
+                    // if(i == n) i = 1.
+                    //if(1 == 1) send, break.
+                    //
                     long double U1x = (U1.at(i + 1, j) - U1.at(i - 1, j)) / (2.0 * dx);
                     long double U2x = (U2.at(i + 1, j) - U2.at(i - 1, j)) / (2.0 * dx);
                     long double U1y = (U1.at(i, j + 1) - U1.at(i, j - 1)) / (2.0 * dy);
@@ -159,43 +170,35 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
                     long double x = (i + startRow) * dx - xc;
                     long double y = j * dy - yc;
-                    if (y > nY / 2) y -= nY / 2;
                     long double theta = atan2(y , x);
                     theta += pi;
                     long double beta = theta + (pi / 2.0);
 
                     long double r = sqrt(x * x + y * y);
                     long double tanVel = dFanAngle * r;
-                    long double tanVelX = tanVel*cos(beta);
-                    long double tanVelY = tanVel*sin(beta);
+                    long double tanVelX = tanVel * cos(beta);
+                    long double tanVelY = tanVel * sin(beta);
 
                     long double relVelX = tanVelX - U2.at(i, j);
                     long double relVelY = tanVelY - V2.at(i, j);
-                    long double Fx = 0.5 * fanArea * C_d*relVelX / dt;
-                    long double Fy = 0.5 * fanArea * C_d*relVelY / dt; //Mass(dt*dx since water density is 1)
+                    long double Fx = 0.5 * fanArea * C_d * relVelX / dt;
+                    long double Fy = 0.5 * fanArea * C_d * relVelY / dt;
+                    //Mass(dt*dx since water density is 1)
                     //times tangent expected speed
                     //divided by time
 
+                    long double Fu = Fx;
+                    long double Fv = Fy;
 
-                    long double Fu = Fx;//F * cos(beta);
-                    long double Fv = Fy;//F * sin(beta);
-
-                    long double angleDif = fabs(theta - fanAngle);
+                    long double angleDif = fabs(theta - fanAngle) / r;
+                    //dividing by r makes the width of the fan constant in r.
                     if ( angleDif < fanWidth  && r > rMin && r < rMax) {
                         long double strMult = 1 - angleDif / fanWidth;
                         U2.add(i, j, -Fu * dt * strMult);
                         V2.add(i, j, -Fv * dt * strMult);
-                    } else {
-                        // U2.add(i, j, -U2.at(i,j));
-                        //V2.add(i, j,  -V2.at(i,j));
                     }
-
-
                 }
-
             }
-
-
         }
 
         //Updating values
@@ -206,44 +209,38 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         P0.setAll(P1);
         P1.setAll(P2);
 
-
         //sharing borders. Borders are start+1 and end-1
         if (myId != 0) {
             extractRows(U1ShareU, U1, 1, 2);
             MPI_Send(U1ShareU.data, U1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD);
         }
+
         if (myId != cantProcs - 1) {
             extractRows(U1ShareD, U1, nXlocal - 2, nXlocal - 1);
             MPI_Send(U1ShareD.data, U1ShareD.cols(), MPI_LONG_DOUBLE, myId + 1, TAG, MPI_COMM_WORLD);
         }
 
         if (myId != 0) {
-
             extractRows(V1ShareU, V1, 1, 2);
             MPI_Send(V1ShareU.data, V1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD);
         }
 
         if (myId != cantProcs - 1) {
-
             extractRows(V1ShareD, V1, nXlocal - 2, nXlocal - 1);
             MPI_Send(V1ShareD.data, V1ShareD.cols(), MPI_LONG_DOUBLE, myId + 1, TAG, MPI_COMM_WORLD);
         }
-        if (myId != 0) {
 
+        if (myId != 0) {
             extractRows(P1ShareU, P1, 1, 2);
             MPI_Send(P1ShareU.data, P1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD);
         }
-        if (myId != cantProcs - 1) {
 
+        if (myId != cantProcs - 1) {
             extractRows(P1ShareD, P1, nXlocal - 2, nXlocal - 1);
             MPI_Send(P1ShareD.data, P1ShareD.cols(), MPI_LONG_DOUBLE, myId + 1, TAG, MPI_COMM_WORLD);
         }
 
-        //MPI_Barrier(MPI_COMM_WORLD);
-
         //Get borders from neighbors, borders are start and end.
-        long double buff[500];
-
         if (myId != 0) {
             MPI_Recv(U1ShareU.data, U1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD, &stat);
             U1.setRow(0, U1ShareU);
@@ -255,7 +252,6 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         }
 
         if (myId != 0) {
-
             MPI_Recv(V1ShareU.data, V1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD, &stat);
             V1.setRow(0, V1ShareU);
         }
@@ -267,25 +263,16 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
         }
 
         if (myId != 0) {
-
             MPI_Recv(P1ShareU.data, P1ShareU.cols(), MPI_LONG_DOUBLE, myId - 1, TAG, MPI_COMM_WORLD, &stat);
             P1.setRow(0, P1ShareU);
         }
-        if (myId != cantProcs - 1) {
 
+        if (myId != cantProcs - 1) {
             MPI_Recv(P1ShareD.data, P1ShareD.cols(), MPI_LONG_DOUBLE, myId + 1, TAG, MPI_COMM_WORLD, &stat);
             P1.setRow(nXlocal - 1,  P1ShareD);
         }
 
-        //si n%algo=0, enviar a rank 0 para imprimir.
-
-
-
-        //si n%algo=0, enviar a rank 0 para imprimir.
         if (step % stepsUntilPrint == 0) {
-            //MPI_Barrier(MPI_COMM_WORLD);
-
-
             if (myId == 0) {
                 mat2 U(nX, nY);
                 copyRowsTo(U, U1, 0);
@@ -293,14 +280,19 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                 mat2 V(nX, nY);
                 copyRowsTo(V, U1, 0);
 
+                mat2 P(nX, nY);
+                copyRowsTo(P, U1, 0);
                 for (int p = 1; p < cantProcs; ++p) {
                     int rowRange = rpt[p].second - rpt[p].first;
-                    mat2 tmp(rowRange, nY);
+                    mat2 tmp(rowRange, nY); //TODO: Most ranges are the same, can we improve this?
                     MPI_Recv(tmp.data, rowRange * nY, MPI_LONG_DOUBLE, p, TAG, MPI_COMM_WORLD, &stat);
                     copyRowsTo(U, tmp, rpt[p].first);
 
                     MPI_Recv(tmp.data, rowRange * nY, MPI_LONG_DOUBLE, p, TAG, MPI_COMM_WORLD, &stat);
                     copyRowsTo(V, tmp, rpt[p].first);
+
+                    MPI_Recv(tmp.data, rowRange * nY, MPI_LONG_DOUBLE, p, TAG, MPI_COMM_WORLD, &stat);
+                    copyRowsTo(P, tmp, rpt[p].first);
                 }
                 if (onlyPrintFan) {
                     long double x0 = (xc + rMin * cos(fanAngle)) / dx;
@@ -308,6 +300,9 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     long double xf = (xc + rMax * cos(fanAngle)) / dx;
                     long double yf = (yc + rMax * sin(fanAngle)) / dy;
                     cout << x0 << " " << y0 << " " << xf << " " <<  yf << endl;
+                } else if (plotPressureInstead) {
+                    P.print(); //pressure must be ploted as ||v||
+                    P.print();
                 } else {
                     U.print();
                     V.print();
@@ -315,23 +310,17 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
             } else {
                 MPI_Send(U1.data, U1.rows()*U1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
                 MPI_Send(V1.data, V1.rows()*V1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
-
+                MPI_Send(P1.data, P1.rows()*P1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
             }
-
         }
-
-
     }
 }
 
-
-
 vector<pair<int, int>> calcRowsPerThread(int rows, int cantProcs) {
     int rowsPerThread = rows / (cantProcs - 1); //Watch out for the last one.
-    //cout << "rows, procs, rowsPerThread = " << rows << ", " << cantProcs << ", " << rowsPerThread << endl;
     int remainingRows = rows - (cantProcs - 1) * rowsPerThread;
     vector<pair<int, int>> threadToRows;
-
+    //TODO: Make special cases for one and two.
     for (int i = 0; i < cantProcs; ++i) {
         int start = remainingRows + (i - 1) * rowsPerThread - 1;
         int end = remainingRows + i * rowsPerThread;
@@ -348,10 +337,6 @@ vector<pair<int, int>> calcRowsPerThread(int rows, int cantProcs) {
     return threadToRows;
 
 }
-
-
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -389,7 +374,12 @@ int main(int argc, char *argv[]) {
 
         //Split and send:
         int cantRows;
-
+        //TODO: Change order to
+        // 1) send borders
+        // 2) calculate center
+        // 3) recieve borders
+        // 4) calculate borders
+        // and then compare performance.
         for (int p = 1; p < cantProcs; p++) {
 
             MPI_Send(&rpt[p].first, 1, MPI_INT, p, TAG, MPI_COMM_WORLD);
@@ -470,9 +460,7 @@ int main(int argc, char *argv[]) {
         MPI_Recv(&startRow, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD, &stat);
         MPI_Recv(&endRow, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD, &stat);
 
-
         int cantRows = endRow - startRow;
-
 
         mat2 U0l(cantRows, nY, 0);
         MPI_Recv(U0l.data, nY * (endRow - startRow), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD, &stat);
