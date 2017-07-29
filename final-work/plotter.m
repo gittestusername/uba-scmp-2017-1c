@@ -1,11 +1,18 @@
 clear all;
-data = dlmread('out');
-fan = dlmread('fan');
+pressurePlot = true;
+mat_rows = 11*2*10 + 1;
+
+if pressurePlot
+    data = dlmread('pres');
+else
+    data = dlmread('out');
+end
+
+fan = dlmread('fan.txt');
 fanN =  size(fan)
 n = size(data);
  data_rows = n(1);
  data_cols = n(2);
- mat_rows = 11*2*10 + 1;
  mat_cols = data_cols;
  skip = 1;
  elementSkip = 1;
@@ -34,13 +41,17 @@ pause(2);
                qux(idx) = U(i,j);
                quy(idx) = V(i,j);
                %create matrix for the heatmap plot.
-               hm(j,i) = sqrt(qux(idx)*qux(idx) + quy(idx)*quy(idx));
+               if pressurePlot
+                    hm(j,i) = qux(idx);
+               else
+                    hm(j,i) = sqrt(qux(idx)*qux(idx) + quy(idx)*quy(idx));
+               end
  
                idx = idx+1;
        end
    end
    
-  % quiver(xs(1:elementSkip:idx-1), ys(1:elementSkip:idx-1), qux(1:elementSkip:idx-1), quy(1:elementSkip:idx-1), 1);  
+   %quiver(xs(1:elementSkip:idx-1), ys(1:elementSkip:idx-1), qux(1:elementSkip:idx-1), quy(1:elementSkip:idx-1), 1);  
    surf(hm, 'EdgeColor','none');
 
    az = 0;

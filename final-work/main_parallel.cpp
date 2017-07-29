@@ -117,18 +117,14 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 
             setPBorders(myId, cantProcs, P0, P1, P2, nXlocal, nY);
 
-
-            //process from start+1 to end-1
+            //process from start+1 to end-1 because start and n correspond to other processes elements.
             for (int i = 1; i < nXlocal - 1; ++i) {
                 for (int j = 1; j < nY - 1; ++j) {
-
-
                     //TODO: Order optimization coould be implemented as follows:
                     //We start at i = 2, instead of 1, then at the end of each iteration.
                     //if(i == n-1) recv.
                     // if(i == n) i = 1.
                     //if(1 == 1) send, break.
-                    //
                     long double U1x = (U1.at(i + 1, j) - U1.at(i - 1, j)) / (2.0 * dx);
                     long double U2x = (U2.at(i + 1, j) - U2.at(i - 1, j)) / (2.0 * dx);
                     long double U1y = (U1.at(i, j + 1) - U1.at(i, j - 1)) / (2.0 * dy);
@@ -307,6 +303,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     U.print();
                     V.print();
                 }
+
             } else {
                 MPI_Send(U1.data, U1.rows()*U1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
                 MPI_Send(V1.data, V1.rows()*V1.cols(), MPI_LONG_DOUBLE, 0, TAG, MPI_COMM_WORLD);
@@ -449,11 +446,8 @@ int main(int argc, char *argv[]) {
 
         process(myId, cantProcs, stat,  U0l, U1l, U2l, V0l, V1l, V2l, P0l, P1l, P2l, fanAngle, rpt);
 
-
-
     } else {
         //RANK != 0.
-
         //recieve:
         int startRow;
         int endRow;
