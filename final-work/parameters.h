@@ -1,8 +1,8 @@
 using namespace std;
 
-long double xMax = 11.0;
-long double yMax = 11.0;
-long double tMax = 40.0;
+long double xMax = 100.0;
+long double yMax = 100.0;
+long double tMax = 1.0;
 long double nu = 0.01; //viscosidad. Era 0.1.
 long double rho = 1.0;  //densidad
 long double dx = (1.0 / 20.0);
@@ -32,7 +32,7 @@ long double C_d = 2.0;
 long double fanArea = dx * dy;
 //TODO: area should depende upon intersection
 // of the element with the fan.
-unsigned int stepsUntilPrint = 800;
+unsigned int stepsUntilPrint = 10000;
 bool printPercentage = true;
 bool onlyPrintFan = true;
 bool plotPressureInstead = false;
