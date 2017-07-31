@@ -101,7 +101,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
     for (long double t = 0.0; t < tMax; t = t + dt) {
         step++;
         if (myId == 0 && printWork) cerr << "work  = " << step*nX*nY / 1000000.0 << ",  ";
-        if (myId == 0 && printPercentage && step % printPercentageSteps == 0) cerr << 100 * t / tMax << "%" << endl;
+        if (myId == 0 && printPercentage && (step % printPercentageSteps) == 0) cerr << 100 * t / tMax << "%" << endl;
         if (100 * t / tMax > percentageStop) return;
 
         //clearScreen();
@@ -182,7 +182,7 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
                     //Mass(dt*dx since water density is 1)
                     //times tangent expected speed
                     //divided by time
-
+                    //cerr << "(t,i,j)" <<  t << ", "<< i << ", "<< j << endl;
                     long double Fu = Fx;
                     long double Fv = Fy;
 
@@ -314,9 +314,16 @@ void process(int myId, int cantProcs, MPI_Status stat, mat2 &U0, mat2 &U1, mat2 
 }
 
 vector<pair<int, int>> calcRowsPerThread(int rows, int cantProcs) {
+    vector<pair<int, int>> threadToRows;
+    if (cantProcs == 1) {
+        pair<int, int> singleCoreRes = make_pair(0, rows);
+        threadToRows.push_back(singleCoreRes);
+        return threadToRows;
+
+    }
     int rowsPerThread = rows / (cantProcs - 1); //Watch out for the last one.
     int remainingRows = rows - (cantProcs - 1) * rowsPerThread;
-    vector<pair<int, int>> threadToRows;
+    
     //TODO: Make special cases for one and two.
     for (int i = 0; i < cantProcs; ++i) {
         int start = remainingRows + (i - 1) * rowsPerThread - 1;
@@ -328,8 +335,8 @@ vector<pair<int, int>> calcRowsPerThread(int rows, int cantProcs) {
 
         if (i == cantProcs - 1) end--;
 
-        pair<int, int> rows = make_pair (start, end);
-        threadToRows.push_back(rows);
+        pair<int, int> rowsPT = make_pair (start, end);
+        threadToRows.push_back(rowsPT);
     }
     return threadToRows;
 

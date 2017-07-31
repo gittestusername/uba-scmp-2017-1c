@@ -32,9 +32,9 @@ long double C_d = 2.0;
 long double fanArea = dx * dy;
 //TODO: area should depende upon intersection
 // of the element with the fan.
-unsigned int stepsUntilPrint = 10000;
+unsigned int stepsUntilPrint = 99999999;
 bool printPercentage = true;
-bool onlyPrintFan = true;
+bool onlyPrintFan = false;
 bool plotPressureInstead = false;
 
 
