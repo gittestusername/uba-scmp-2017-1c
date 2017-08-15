@@ -1,14 +1,14 @@
 
 
 \begin{section}{Condiciones de contorno}
-El sistema fisico esta compuesto por un recipiente rectangular que contiene un liquido dentro. Ademas una helice en el centro, cuyas aspas son rectas y de exactamente la misma longitud a distintas alturas, perturba el liquido produciendo en el cambios de velocidad. 
-Para la simulación se aprovechara la simetria del problema para modelarlo en dos dimensiones. Se tomara entonces un corte horizontal del reactor. El sistema, como sera modelado, consiste entonces de un plano horizontal, cuyos vértices y aristas representan las paredes del recipiente, un espacio dentro que representa el fluido, y segmentos en el centro que representan la posición de las aspas de la helice. Definir la cantidad de aspas en la helice es sencillo, basta con cambiar las condiciónes en un condicional que logra que se trate distinto a los elementos de dluido donde deberia estar un aspa. En el presente trabajo se realizó la experimentación con una unica aspa ya que esto aporta mayor claridad a la hora de evaluar el comportamiento del fluido.
+El sistema físico esta compuesto por un recipiente rectangular que contiene un liquido dentro. Ademas una hélice en el centro, cuyas aspas son rectas y de exactamente la misma longitud a distintas alturas, perturba el liquido produciendo en el cambios de velocidad. 
+Para la simulación se aprovechara la simetría del problema para modelarlo en dos dimensiones. Se tomara entonces un corte horizontal del reactor. El sistema, como sera modelado, consiste entonces de un plano horizontal, cuyos vértices y aristas representan las paredes del recipiente, un espacio dentro que representa el fluido, y segmentos en el centro que representan la posición de las aspas de la hélice. Definir la cantidad de aspas en la hélice es sencillo, basta con cambiar las condiciones en un condicional que logra que se trate distinto a los elementos de fluido donde debería estar un aspa. En el presente trabajo se realizó la experimentación con una única aspa ya que esto aporta mayor claridad a la hora de evaluar el comportamiento del fluido.
 ~\\
 
 
 \begin{figure}[h]
-\includegraphics[width=\textwidth/3,height=\textheight/3,keepaspectratio]{figures/border}
-\caption{Podemos ver en azúl el área barrida por la helice, desde $R_{min}$ hasta $R_{max}$ desde el centro $O$. En verde las paredes del contenedor, y en blanco el resto del fluido presente en el mismo. }
+\includegraphics[width=\textwidth/2,height=\textheight/2,keepaspectratio]{figures/reactor}
+\caption{Esquema del sistema físico modelado.}
 \label{fig:border}
 
 \end{figure}

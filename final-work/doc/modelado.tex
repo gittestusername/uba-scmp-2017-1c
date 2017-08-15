@@ -3,14 +3,17 @@
 Las ecuaciones de Navier Stokes son ecuaciones diferenciales en derivadas parciales, no lineales e inhomogéneas. Ademas son parabólicas, ya que tienen un termino difusivo distinto de cero.
 
 En nuestro caso trabajaremos con las ecuaciones para fluidos incompresibles.
+~\\
+
 \begin{center}
 $\nabla \cdot v_e = 0$\\
 $\frac{\partial v_e}{\partial t} + (v_e \cdot \nabla)v_e = -\frac{1}{\rho}\nabla p+\nu \nabla^2v_e$
 \end{center}
+~\\
 
 Donde p es la presión, v la velocidad, $\rho$ la densidad, y $\nu$ la viscosidad. La primera ecuación define la conservación de la masa para densidad constante $\rho$. 
-Los valores que se utilizaran para cada una de estas constantes son 0.01 para la viscocidad, 1 para la densidad, ya que son consistentes con los valores para el agua en unidades del sistema internacional.
-Para acoplar la velocidad y la presión debemos realizar dos pasos. Primero aplicamos divergencia a ambos miembros de la segunda ecuación aplicando luego la primera ecuación sobre el resultado. Se obtiene el siguiente sistema de ecuaciones, donde la primera ecuación representa la velocidad en la dirección de u, y la segunda la velocidad en la dirección de v. Es decir, $v=(u,v)$. Ademas agregamos a estas ecuaciónes, los terminos $F_u$ y $F_v$, por ahora genericos, que corresponderan a la fuerza ejercida por la helice en las componentes u y v.
+Los valores que se utilizaran para cada una de estas constantes son 0.01 para la viscosidad, 1 para la densidad, ya que son consistentes con los valores para el agua en unidades del sistema internacional.
+Para acoplar la velocidad y la presión debemos realizar dos pasos. Primero aplicamos divergencia a ambos miembros de la segunda ecuación aplicando luego la primera ecuación sobre el resultado. Se obtiene el siguiente sistema de ecuaciones, donde la primera ecuación representa la velocidad en la dirección de u, y la segunda la velocidad en la dirección de v. Es decir, $v=(u,v)$. Ademas agregamos a estas ecuaciones, los términos $F_u$ y $F_v$, por ahora genéricos, que corresponderán a la fuerza ejercida por la hélice en las componentes u y v.
 ~\\
 
 \begin{center}
@@ -23,6 +26,7 @@ $\frac{\partial ^2 p}{\partial x^2} + \frac{\partial ^2 p}{\partial y^2} = - \rh
 
 
 \end{center}
+~\\
 
 Las ecuaciones están ahora parcialmente acopladas, pasaremos ahora a discretizarlas.
 \end{section}

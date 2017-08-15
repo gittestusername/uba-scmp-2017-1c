@@ -2,14 +2,14 @@
 ~\\
 ~\\
 
-\begin{section}{Implementacion}
-La implementación fue realizada casi completamente en C++, excepto por el graficador que se escribió en Matlab. 
+\begin{section}{Implementación}
+La implementación fue realizada casi completamente en C++, excepto por el el generador de gráficos que se escribió en Matlab. 
 ~\\
 ~\\
 Corriendo de forma no paralela, el programa define las matrices U2, U2, V1, V2, P1, P2, que representan el estado del sistema en una iteración para la velocidad en u, en v, y la presión, y luego estas mismas en la iteración siguiente. 
 ~\\
 ~\\
-Se definen las condiciones iniciales del problema, y luego se utiliza el metodo explicito explicado anteriormente para calcular los nuevos valores del sistema. Estos son guardados en U2, V2, y P2. Seguido de esto el programa reemplaza los valores de U1, V1, y P1, por aquellos de U2, V2 y P2, quedado así preparado para la siguiente iteración. 
+Se definen las condiciones iniciales del problema, y luego se utiliza el método explicito explicado anteriormente para calcular los nuevos valores del sistema. Estos son guardados en U2, V2, y P2. Seguido de esto el programa reemplaza los valores de U1, V1, y P1, por aquellos de U2, V2 y P2, quedado así preparado para la siguiente iteración. 
 ~\\
 ~\\
 Una salvedad es que al realizar el calculo de los nuevos valores, si un elemento forma un angulo respecto del centro del sistema que es congruente con aquel que debería tener el aspa para el tiempo de esa iteración, entonces a ese elemento se le aplica una fuerza de la forma $F = A \delta v^2$, donde A es el área compartida por los elementos, y $\delta v$ es la diferencia de velocidad, para ese punto, entre el aspa y el fluido. Esta diferencia es calculada restando componente a componente, los elementos correspondientes de las matrices U1 y V1, y la velocidad tangencial del aspa en ese punto, que resulta de multiplicar la velocidad angular por el radio elemento menos el punto central del sistema. 
@@ -28,11 +28,14 @@ En cuanto a la paralelización, como se comentó anteriormente se utilizó MPI. 
 \item Todos los procesos ejecutan una función encargada de procesar la simulación.
 \item Dentro de esta función, se encuentra un ciclo en el cual realizan los cálculos pertinentes a la simulación, y al terminar una iteración, cada proceso envía los nuevos valores de los elementos que pertenecen a su sección, pero que son necesarios para que procesos vecinos calculen la siguiente iteración de sus elementos.
 \item Cada proceso recibe los valores enviados por los procesos vecinos.
-\item Cada proceso chequea el numero de iteración, y en caso de que sea multiplo de cierto valor prefijado, envía su sección entera al proceso cero para que este imprima. Luego el proceso cero reúne todas las secciones armando las matrices completas.
+\item Cada proceso chequea el numero de iteración, y en caso de que sea múltiplo de cierto valor prefijado, envía su sección entera al proceso cero para que este imprima. Luego el proceso cero reúne todas las secciones armando las matrices completas.
 \item Si es el caso, el proceso cero imprime las matrices U y V por la salida estándar.
 \item Luego de esto el ciclo descripto en el paso seis termina, y se vuelve a ejecutar. En caso de haber llegado al tiempo máximo de la simulación, todos los procesos retornan de la función, y luego de la función principal.
 ~\\
 ~\\
+\end{itemize}
+
+
 
 Aquí cabe aclarar algunas cosas. Primero, la impresión realizada por el proceso cero, imprime U y V de un tiempo, y U yV del tiempo siguiente de forma contigua. Es la rutina de Matlab la que se encarga de separar y conferir significado a esos datos. 
 ~\\
@@ -54,7 +57,6 @@ Se aclara también que a veces una simulación se vuelve inestable, pero termina
 ~\\
 ~\\
 Sin embargo, algo bueno de las simulaciones de dinámica de fluidos por diferencias finitas, es que muy a menudo, cuando se vuelven inestables, lo hacen de una forma muy clara, que no se comporta para nada como un fluido, se recomienda entonces hecha un vistazo, siempre que se pueda, a algún gráfico de los resultados de la simulación para comprobar que esta se mantuvo estable.
-\end{itemize}
 
 \end{section}
 
